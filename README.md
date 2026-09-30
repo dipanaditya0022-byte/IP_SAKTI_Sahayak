@@ -6,6 +6,12 @@
 
 IP-SAKTI Sahayak helps Ayurveda researchers, startups, MSMEs, patent and regulatory professionals navigate IP, traditional knowledge (TK), scientific evidence and regulation across **India, the USA and Australia**. It is a **decision-support and evidence-orchestration platform**. It is *not* a patent agent, lawyer, regulator, medical advisor, TKDL mirror, filing system or approval predictor, and it never claims to be.
 
+Repository: https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak
+
+```bash
+git clone https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak.git
+```
+
 ---
 
 ## Features
@@ -13,7 +19,8 @@ IP-SAKTI Sahayak helps Ayurveda researchers, startups, MSMEs, patent and regulat
 | Area | What it does |
 |---|---|
 | Auth & workspaces | Register/login (bcrypt + JWT in an httpOnly cookie), workspace RBAC (OWNER/ADMIN/RESEARCHER/REVIEWER/VIEWER), workspace isolation, CSRF header check, session expiry, brute-force throttling |
-| Admin console | Fully separate area and login (`/admin/login`, scoped session/cookie — an app session never grants access): system dashboard, users, workspaces, source registry, document management (review/reject/re-index), RAG monitoring, citation verification monitoring, evaluation, escalations (assign + notes), feedback, filterable audit log with CSV export, read-only settings |
+| Sign-in | One combined sign-in screen (`/login`, also reachable at `/admin/login`) with a **User / Admin** toggle — User selected by default. Each mode posts to its own endpoint and sets its own scoped session cookie, so the two are never mixed even though the form is shared |
+| Admin console | Fully separate area and session (scoped `admin` cookie — a regular app session never grants access, even for an ADMIN-role account): system dashboard, users, workspaces, source registry, document management (review/reject/re-index), RAG monitoring, citation verification monitoring, evaluation, escalations (assign + notes), feedback, filterable audit log with CSV export, read-only settings |
 | Innovation Profiler | 7-step wizard → structured profile, technical features, terminology normalisation, missing information and ambiguities (never invented), user editing/confirmation |
 | Terminology engine | Sanskrit / Hindi / English / botanical / chemical mapping; ambiguous common names (e.g. *Brahmi*) are flagged, not silently mapped |
 | AI Research Assistant | Conversations, 6 modes, language/jurisdiction/source filters, structured answers (answer → key points → evidence → status → limitations → next step), copy/regenerate/feedback/flag, add-to-innovation |
@@ -48,7 +55,7 @@ Browser ──► Next.js 15 (App Router, TanStack Query, Tailwind, React Flow)
          PostgreSQL 16 + pgvector (HNSW cosine index, GIN tsvector index)
 ```
 
-- **LLM:** a provider abstraction with `openai`, `deepseek` (OpenAI-compatible) and `mock` backends. With `mock`, answers are **extractive**: they quote retrieved passages and are still verified. Nothing is synthesised without a source.
+- **LLM:** a provider abstraction (`OpenAICompatibleProvider`) covering `ollama` (free, local, private — the default in this repo's `.env`), `gemini`, `groq`, `grok`, `openai`, `deepseek`, plus a `mock` fallback. With `mock` (the default in `.env.example`), answers are **extractive**: they quote retrieved passages and are still verified. Nothing is synthesised without a source.
 - **Embeddings:** `hashing` (default: offline character/word n-gram hashing, 1024-d), `openai` (text-embedding-3-small at 1024-d) or `bge_m3` (local). DeepSeek has no embeddings API, so pair it with `hashing` or `openai`.
 
 ## Folder structure
@@ -126,9 +133,9 @@ App logins (password `Demo@12345`): `researcher@ipsakti.demo` (Researcher), `rev
 
 Hackathon flow: Login → Dashboard → *AyuCalm-X (DEMO)* → Profile (note the Brahmi ambiguity and the disease-claim flag) → *Ask about this innovation* (citations, verification, search trace, conflicting sources) → Scientific (ingredient vs formulation) → Patents (feature matrix, families) → Traditional Knowledge → Classification → Regulatory Passport (India / USA / Australia and comparison) → Gaps & Risk → Evidence Graph (click nodes and edges) → Escalation & Report → export → Audit Trail.
 
-### Admin console (separate area, separate login)
+### Admin console (separate area, separate session)
 
-The admin console is a fully separate part of the site, not a tab inside the app: **http://localhost:3000/admin/login**, credentials `admin@ipsakti.demo` / `Demo@12345`. It requires its own sign-in even for an ADMIN-role account already signed in to the app — the app session alone is never enough. From inside the app, an ADMIN-role user sees a single "Admin console (separate sign-in)" link at the bottom of the sidebar.
+The admin console is a fully separate part of the site, not a tab inside the app. Open **http://localhost:3000/login** (or go straight to `/admin/login`) and pick the **Admin** tab — credentials `admin@ipsakti.demo` / `Demo@12345`. It requires its own sign-in even for an ADMIN-role account already signed in to the app — picking **User** and logging in with the same admin credentials only opens the regular app session, never the console. From inside the app, an ADMIN-role user also sees an "Admin console (separate sign-in)" link at the bottom of the sidebar.
 
 It covers: Dashboard (system-wide analytics, health, retention), Users, Workspaces, Source Registry, Documents (upload, review, reject, re-index), RAG Monitoring (retrieval stats, failed retrievals, abstentions, latency), Citation Verification Monitoring, RAG Evaluation (run it live), Escalations (assign a reviewer, add notes), Feedback, Audit Logs (filterable, CSV export) and Settings (effective config, secrets masked).
 
@@ -164,8 +171,9 @@ docker compose up -d postgres
 .venv/bin/python -m pytest -q          # uses a separate ipsakti_test database, migrated and seeded automatically
 ```
 
-54 tests cover (incl. LLM mode via a fake provider, OCR, coverage, provisions, feedback, lifecycle):
+60 tests cover (incl. LLM mode via a fake provider, OCR, coverage, provisions, feedback, lifecycle):
 - auth, RBAC, CSRF and workspace isolation;
+- the **user/admin access-rules matrix** — unauthenticated → login redirect, USER → admin routes forbidden, ADMIN → admin routes allowed, and data isolation between users even from the admin document view;
 - upload validation and injection flagging;
 - retrieval relevance, irrelevant-query rejection and jurisdiction filtering;
 - supersession, supported/contradicted/unsupported citations and conflict detection;
