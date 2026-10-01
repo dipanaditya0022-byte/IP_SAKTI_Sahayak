@@ -27,7 +27,6 @@ git clone https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak.git
 - [Security](#security)
 - [Testing](#testing)
 - [Known limitations](#known-limitations)
-- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -206,7 +205,3 @@ docker compose up -d postgres
 - Rate limiting is in-process; a multi-instance deployment would need Redis.
 - Background jobs run inline, since documents are small; longer ingestion jobs would need a dedicated worker.
 - Legacy artifacts from an earlier prototype (`backend/db/schema.sql`, `rag/store/*`, `evaluation/`, `scripts/`) are kept for reference only; the Alembic migrations and `app/models/orm.py` are the source of truth.
-
-## Acknowledgements
-
-The initial project scaffold was built by **Devansh Tiwari**.
