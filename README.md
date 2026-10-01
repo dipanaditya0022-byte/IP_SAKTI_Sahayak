@@ -191,3 +191,7 @@ docker compose up -d postgres
 - Rate limiting is in-process; use Redis for multi-instance deployments.
 - Background jobs run inline (documents are small); long ingestion would need a worker.
 - Legacy artifacts from the earlier prototype (`backend/db/schema.sql`, `rag/store/*`, `evaluation/`, `scripts/`) are kept for reference; Alembic migrations and `app/models/orm.py` are the source of truth.
+
+## Credits
+
+Initial project scaffold by **Devansh Tiwari**.
