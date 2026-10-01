@@ -46,6 +46,8 @@ data/uploads/
 frontend/tsconfig.tsbuildinfo
 *.sqlite3
 *.db
+*.db-shm
+*.db-wal
 data/cache/
 data/raw_pdf/
 
