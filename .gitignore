@@ -51,6 +51,9 @@ frontend/tsconfig.tsbuildinfo
 data/cache/
 data/raw_pdf/
 
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json
+
 # IDE / OS
 .idea/
 .vscode/
