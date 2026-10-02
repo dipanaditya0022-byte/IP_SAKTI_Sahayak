@@ -4,6 +4,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 Jurisdiction = Literal["IN", "US", "AU"]
+DocumentJurisdiction = Literal["IN", "US", "AU", "INTERNATIONAL"]
 Lang = Literal["en", "hi"]
 
 
@@ -195,7 +196,7 @@ class SourceIn(BaseModel):
     name: str = Field(min_length=2, max_length=300)
     authority: str = Field(min_length=2, max_length=200)
     authority_tier: int = Field(ge=1, le=5)
-    jurisdiction: Literal["IN", "US", "AU", "INTERNATIONAL"]
+    jurisdiction: DocumentJurisdiction
     source_type: str = Field(max_length=60)
     base_url: Optional[str] = Field(default=None, max_length=500)
     access_level: Literal["PUBLIC", "RESTRICTED_RECORDS_PUBLIC_INFO", "WORKSPACE", "RESTRICTED"] = "PUBLIC"

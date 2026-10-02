@@ -10,7 +10,7 @@ from app.api.deps import WorkspaceCtx, get_db, rate_limit, workspace_ctx
 from app.core.responses import AppError, not_found, ok
 from app.models.orm import Document, DocumentChunk, IngestionJob, Source, WorkspaceRole
 from app.core.config import settings
-from app.schemas import DocumentReview, SourceIn, SourcePatch
+from app.schemas import DocumentJurisdiction, DocumentReview, SourceIn, SourcePatch
 from app.services.audit import audit
 from app.services.governance import coverage, update_queue, update_status
 from app.services.ingestion import create_job, ocr_available, ocr_languages, process_job
@@ -110,7 +110,7 @@ def upload_notice(ctx: WorkspaceCtx = Depends(workspace_ctx), db: Session = Depe
 
 @router.post("/documents", dependencies=[Depends(rate_limit("ingest"))], summary="Upload a document into the workspace (Tier 5, unverified)")
 async def upload_document(request: Request, background: BackgroundTasks, file: UploadFile = File(...), title: str = Form(..., min_length=2, max_length=500),
-                          jurisdiction: str = Form("INTERNATIONAL"), domain: str = Form("REGULATORY"), document_type: str = Form("USER_UPLOAD"),
+                          jurisdiction: DocumentJurisdiction = Form("INTERNATIONAL"), domain: str = Form("REGULATORY"), document_type: str = Form("USER_UPLOAD"),
                           language: str = Form("en"), privacy_ack: bool = Form(False),
                           ctx: WorkspaceCtx = Depends(workspace_ctx), db: Session = Depends(get_db)):
     ctx.require(WorkspaceRole.RESEARCHER)

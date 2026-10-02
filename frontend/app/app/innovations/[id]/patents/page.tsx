@@ -26,6 +26,11 @@ export default function PatentsTab() {
   if (q.isError) return <ErrorState error={q.error} onRetry={() => q.refetch()} />;
   const d = q.data;
   const features = Array.from(new Set(d.matrix.map((m: any) => m.feature))) as string[];
+  // Matches are already scoped server-side to the innovation's target jurisdictions
+  // (Innovation.target_markets), so this is a secondary filter over an already-scoped set —
+  // derived from what's actually present rather than a hardcoded list, so it never offers a
+  // jurisdiction (e.g. EP) that can't appear in this innovation's own matches.
+  const jurisdictionsPresent = Array.from(new Set(d.matrix.map((m: any) => m.jurisdiction))) as string[];
   const rows = d.matrix.filter((m: any) => (!feature || m.feature === feature) && (!jur || m.jurisdiction === jur) && m.similarity >= minSim && (!after || (m.date || '') >= after));
 
   return (
@@ -52,7 +57,7 @@ export default function PatentsTab() {
             </select>
             <select value={jur} onChange={(e) => setJur(e.target.value)} aria-label="Jurisdiction filter">
               <option value="">All jurisdictions</option>
-              {['IN', 'US', 'EP', 'AU'].map((j) => <option key={j}>{j}</option>)}
+              {jurisdictionsPresent.map((j) => <option key={j}>{j}</option>)}
             </select>
             <label className="text-xs">Min similarity
               <input type="range" min={0} max={1} step={0.05} value={minSim} onChange={(e) => setMinSim(Number(e.target.value))} className="ml-2 align-middle" /> {minSim.toFixed(2)}

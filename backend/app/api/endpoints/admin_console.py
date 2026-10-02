@@ -20,7 +20,7 @@ from app.models.orm import (
     EvaluationRun, Feedback, IngestionJob, Innovation, Message, Source, SupportStatus, User, UserRole, Workspace, WorkspaceMember,
     WorkspaceRole,
 )
-from app.schemas import AdminEscalationPatch, DocumentReview, FeedbackPatch, SourceIn, SourcePatch, UserPatch
+from app.schemas import AdminEscalationPatch, DocumentJurisdiction, DocumentReview, FeedbackPatch, SourceIn, SourcePatch, UserPatch
 from app.services.audit import audit
 from app.services.embeddings import get_embedder
 from app.services.evaluation import run_evaluation
@@ -254,7 +254,7 @@ def document(document_id: str, request: Request, admin: User = Depends(require_a
 
 @router.post("/documents/ingest", summary="Ingest an official document into the global corpus")
 async def ingest_document(request: Request, background: BackgroundTasks, file: UploadFile = File(...), title: str = Form(..., min_length=2, max_length=500),
-                          source_id: str = Form(...), jurisdiction: str = Form(...), domain: str = Form(...), document_type: str = Form(...),
+                          source_id: str = Form(...), jurisdiction: DocumentJurisdiction = Form(...), domain: str = Form(...), document_type: str = Form(...),
                           language: str = Form("en"), publication_date: Optional[str] = Form(None), effective_date: Optional[str] = Form(None),
                           url: Optional[str] = Form(None), admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     data = await file.read()
@@ -343,6 +343,7 @@ def rag_monitoring(days: int = 30, db: Session = Depends(get_db)):
     by_status: dict[str, int] = {}
     by_mode: dict[str, int] = {}
     by_intent: dict[str, int] = {}
+    by_jurisdiction: dict[str, int] = {}
     reasons: dict[str, int] = {}
     lat, failed, abstentions, llm_fallbacks = [], [], [], 0
     for m, ws in rows:
@@ -354,6 +355,8 @@ def rag_monitoring(days: int = 30, db: Session = Depends(get_db)):
         by_mode[mode] = by_mode.get(mode, 0) + 1
         intent = (p.get("analysis") or {}).get("intent", "?")
         by_intent[intent] = by_intent.get(intent, 0) + 1
+        jur = (p.get("analysis") or {}).get("jurisdiction_label") or "?"
+        by_jurisdiction[jur] = by_jurisdiction.get(jur, 0) + 1
         if "Language model unavailable" in (p.get("answer") or ""):
             llm_fallbacks += 1
         if (p.get("trace") or {}).get("latency_ms") is not None:
@@ -370,6 +373,7 @@ def rag_monitoring(days: int = 30, db: Session = Depends(get_db)):
     return ok({
         "window_days": days, "queries": len(rows),
         "by_type": by_type, "by_evidence_status": by_status, "by_generation_mode": by_mode, "by_intent": by_intent,
+        "by_jurisdiction": by_jurisdiction,
         "abstention_reasons": reasons, "abstention_rate": round(sum(reasons.values()) / n, 3),
         "failed_retrieval_rate": round(reasons.get("NO_EVIDENCE", 0) / n, 3),
         "latency_ms": {"p50": _pct(lat, 0.5), "p95": _pct(lat, 0.95), "max": max(lat) if lat else None},
@@ -386,6 +390,13 @@ def citation_monitoring(days: int = 30, db: Session = Depends(get_db)):
     conf = _confidential_workspaces(db)
     by_status = {k.value: v for k, v in db.execute(select(Claim.support_status, func.count()).where(Claim.created_at >= since).group_by(Claim.support_status)).all()}
     by_type = dict(db.execute(select(Claim.claim_type, func.count()).where(Claim.created_at >= since).group_by(Claim.claim_type)).all())
+    # Claim itself carries no jurisdiction column — it's the chat turn's jurisdiction_label,
+    # stored on the owning Message.payload, same field rag_monitoring() reads. Joined and
+    # tallied in Python (not a SQL group_by) since the value lives inside a JSON blob.
+    by_jurisdiction: dict[str, int] = {}
+    for (payload,) in db.execute(select(Message.payload).join(Claim, Claim.message_id == Message.id).where(Claim.created_at >= since)).all():
+        jur = ((payload or {}).get("analysis") or {}).get("jurisdiction_label") or "?"
+        by_jurisdiction[jur] = by_jurisdiction.get(jur, 0) + 1
     total = sum(by_status.values()) or 1
     bad = db.execute(
         select(Claim, Conversation.workspace_id).outerjoin(Conversation, Conversation.id == Claim.conversation_id)
@@ -405,6 +416,7 @@ def citation_monitoring(days: int = 30, db: Session = Depends(get_db)):
                          "llm_entailment": (ev.checks or {}).get("llm_entailment") if ev else None})
     return ok({
         "window_days": days, "claims": sum(by_status.values()), "by_status": by_status, "by_claim_type": by_type,
+        "by_jurisdiction": by_jurisdiction,
         "supported_rate": round(by_status.get("SUPPORTED", 0) / total, 3),
         "unsupported_rate": round((by_status.get("UNSUPPORTED", 0) + by_status.get("INSUFFICIENT", 0)) / total, 3),
         "conflicting_rate": round(by_status.get("CONFLICTING", 0) / total, 3),

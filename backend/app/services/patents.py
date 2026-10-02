@@ -106,7 +106,15 @@ def generate_search_concepts(db: Session, inn: Innovation) -> list[dict]:
 
 def search_patents(db: Session, query: str, *, expansions: Optional[list[str]] = None, jurisdictions: Optional[list[str]] = None,
                    date_from: Optional[str] = None, date_to: Optional[str] = None, top_k: int = 10, workspace_id: Optional[str] = None) -> dict:
-    f = RetrievalFilters(document_types=["PATENT"], workspace_id=workspace_id, date_from=date_from, date_to=date_to)
+    # Jurisdiction filtering happens primarily in the SQL WHERE clause (RetrievalFilters), so
+    # top_k candidates aren't wasted on jurisdictions the caller excluded. _filter_sql filters
+    # on Document.jurisdiction and always also allows "INTERNATIONAL" (so treaties/international
+    # sources stay visible) — but the seed data maps any patent jurisdiction outside IN/US/AU
+    # (e.g. "EP") to Document.jurisdiction="INTERNATIONAL" while keeping the real value on
+    # Patent.jurisdiction, so such a patent would otherwise always pass the SQL filter. The
+    # cheap secondary check on Patent.jurisdiction below guarantees correctness for that case.
+    f = RetrievalFilters(document_types=["PATENT"], jurisdictions=jurisdictions or [], workspace_id=workspace_id,
+                         date_from=date_from, date_to=date_to)
     r = retrieve(db, query, expansions=expansions, filters=f, intent="PRIOR_ART_SEARCH", top_k=top_k, per_document=1)
     pats = _patent_by_doc(db, [x["document_id"] for x in r.results])
     cards = []
@@ -136,14 +144,25 @@ def match_innovation(db: Session, inn: Innovation, workspace_id: str) -> list[Pa
         expansions = engine.expand(engine.normalize(" ".join([q, f.normalized_term or ""])))
         if f.normalized_term and f.normalized_term not in expansions:
             expansions.append(f.normalized_term)
+        # Scope matches to the innovation's own target jurisdictions. Empty target_markets
+        # falls back to unfiltered (RetrievalFilters treats [] as no filter), which surfaces
+        # compute_gaps()'s "jurisdiction not selected" gap as the right signal instead of
+        # silently hiding matches. The SQL filter narrows candidates by Document.jurisdiction;
+        # the Patent.jurisdiction re-check below catches patents (e.g. the seeded "EP" one)
+        # whose Document.jurisdiction was mapped to "INTERNATIONAL" at seed time and would
+        # otherwise always pass the SQL filter's automatic INTERNATIONAL allowance — see the
+        # matching comment in search_patents().
         r = retrieve(
-            db, q, expansions=expansions, filters=RetrievalFilters(document_types=["PATENT"], workspace_id=workspace_id),
+            db, q, expansions=expansions,
+            filters=RetrievalFilters(document_types=["PATENT"], jurisdictions=inn.target_markets or [], workspace_id=workspace_id),
             intent="PRIOR_ART_SEARCH", feature_terms=[f.name], top_k=4, per_document=1,
         )
         pats = _patent_by_doc(db, [x["document_id"] for x in r.results])
         for x in r.results:
             p = pats.get(x["document_id"])
             if not p or x["relevance"] < MIN_MATCH:
+                continue
+            if inn.target_markets and p.jurisdiction not in inn.target_markets:
                 continue
             body_terms = set(content_terms(x["content"] + " " + p.title))
             matched_terms = [t for t in content_terms(q + " " + " ".join(expansions)) if t in body_terms][:12]

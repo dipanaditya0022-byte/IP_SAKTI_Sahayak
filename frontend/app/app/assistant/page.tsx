@@ -34,19 +34,22 @@ export default function AssistantPage() {
 }
 
 function Assistant() {
-  const { t, lang } = useApp();
+  const { t, lang, jurisdictions, setJurisdictions } = useApp();
   const params = useSearchParams();
   const router = useRouter();
   const qc = useQueryClient();
   const [convId, setConvId] = useState<string | null>(params.get('c'));
   const [innovationId, setInnovationId] = useState<string>(params.get('innovation') || '');
   const [mode, setMode] = useState(params.get('innovation') ? 'INNOVATION' : 'GENERAL');
-  const [jur, setJur] = useState(params.get('jur') || '');
+  // The ?jur= deep-link param is an optional one-time override; otherwise this follows the
+  // shared jurisdiction preference (set on the landing page / dashboard). ChatIn.jurisdiction
+  // is singular, so only the first selected jurisdiction is sent per conversation turn.
+  const urlJur = params.get('jur');
   useEffect(() => {
-    if (!params.get('jur')) {
-      try { setJur(localStorage.getItem('ipsakti.jur') || ''); } catch {}
-    }
-  }, [params]);
+    if (urlJur) setJurisdictions([urlJur as any]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlJur]);
+  const jur = jurisdictions[0] || '';
   const [maxTier, setMaxTier] = useState('');
   const [text, setText] = useState('');
   const [openEv, setOpenEv] = useState<Evidence | null>(null);
@@ -126,7 +129,7 @@ function Assistant() {
             <select className="py-1 text-xs" value={mode} onChange={(e) => setMode(e.target.value)}>{MODES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
           </label>
           <label className="flex items-center gap-1">{t.chat.jurisdiction}
-            <select className="py-1 text-xs" value={jur} onChange={(e) => setJur(e.target.value)}>
+            <select className="py-1 text-xs" value={jur} onChange={(e) => setJurisdictions(e.target.value ? [e.target.value as any] : [])}>
               <option value="">{t.chat.auto}</option><option value="IN">India</option><option value="US">USA</option><option value="AU">Australia</option>
             </select>
           </label>

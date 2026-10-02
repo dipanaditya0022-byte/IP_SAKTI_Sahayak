@@ -2,11 +2,37 @@
 
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useState } from 'react';
 import { InnovationCardView } from '@/components/innovation-card';
-import { Card, EmptyState, ErrorState, LinkButton, PageHeader, Spinner, Stat, fmtDateTime } from '@/components/ui';
+import { Button, Card, EmptyState, ErrorState, JurisdictionBadge, LinkButton, PageHeader, Spinner, Stat, fmtDateTime } from '@/components/ui';
 import { get } from '@/lib/api';
 import { useApp } from '@/lib/providers';
-import type { InnovationCard } from '@/lib/types';
+import type { InnovationCard, Jurisdiction } from '@/lib/types';
+
+const JURISDICTION_OPTIONS: [Jurisdiction, string][] = [['IN', 'India'], ['US', 'USA'], ['AU', 'Australia']];
+
+function ActiveJurisdiction() {
+  const { jurisdictions, setJurisdictions } = useApp();
+  const [editing, setEditing] = useState(false);
+  const toggle = (j: Jurisdiction) => setJurisdictions(jurisdictions.includes(j) ? jurisdictions.filter((x) => x !== j) : [...jurisdictions, j]);
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
+      <span className="text-text-secondary">{jurisdictions.length > 1 ? 'Active jurisdictions' : 'Active jurisdiction'}:</span>
+      {jurisdictions.length ? jurisdictions.map((j) => <JurisdictionBadge key={j} j={j} />) : <span className="text-text-muted">None selected</span>}
+      <Button variant="ghost" size="sm" onClick={() => setEditing((v) => !v)}>Change</Button>
+      {editing && (
+        <fieldset className="flex items-center gap-3 rounded-md border border-surface-border bg-surface-elevated px-3 py-1.5 text-xs">
+          {JURISDICTION_OPTIONS.map(([code, name]) => (
+            <label key={code} className="flex items-center gap-1.5">
+              <input type="checkbox" checked={jurisdictions.includes(code)} onChange={() => toggle(code)} />
+              {name}
+            </label>
+          ))}
+        </fieldset>
+      )}
+    </div>
+  );
+}
 
 const ACTION_LABEL: Record<string, string> = {
   login: 'signed in', innovation_created: 'created innovation', innovation_updated: 'updated', profile_generated: 'generated profile',
@@ -31,6 +57,7 @@ export default function Dashboard() {
         subtitle="Your workspace's innovations, evidence and open review items."
         actions={<><LinkButton href="/app/assistant" variant="secondary">{t.nav.assistant}</LinkButton><LinkButton href="/app/innovations/new">{t.nav.createInnovation}</LinkButton></>}
       />
+      <ActiveJurisdiction />
       {dash.isError ? (
         <ErrorState error={dash.error} onRetry={() => dash.refetch()} />
       ) : (

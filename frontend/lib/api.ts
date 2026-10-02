@@ -4,6 +4,8 @@
  */
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 const WS_KEY = 'ipsakti.workspace';
+const JUR_KEY = 'ipsakti.jurisdictions';
+const LEGACY_JUR_KEY = 'ipsakti.jur'; // the old single-value key the landing page used to write
 
 export class ApiError extends Error {
   code: string;
@@ -31,6 +33,26 @@ export function setWorkspaceId(id: string | null) {
     else window.localStorage.removeItem(WS_KEY);
   } catch {
     /* storage unavailable: server falls back to the first workspace */
+  }
+}
+
+export function getJurisdictions(): string[] {
+  try {
+    const raw = window.localStorage.getItem(JUR_KEY);
+    if (raw) return JSON.parse(raw);
+    // One-time migration from the landing page's old single-value key.
+    const legacy = window.localStorage.getItem(LEGACY_JUR_KEY);
+    return legacy ? [legacy] : [];
+  } catch {
+    return [];
+  }
+}
+
+export function setJurisdictions(js: string[]) {
+  try {
+    window.localStorage.setItem(JUR_KEY, JSON.stringify(js));
+  } catch {
+    /* storage unavailable: pages fall back to no jurisdiction preselected */
   }
 }
 

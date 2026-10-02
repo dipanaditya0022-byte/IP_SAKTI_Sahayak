@@ -6,9 +6,11 @@ import {
   ShieldCheck, UserCheck,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { LinkButton, Stat } from '@/components/ui';
 import { useApp } from '@/lib/providers';
+import type { Jurisdiction } from '@/lib/types';
+
+const JURISDICTION_OPTIONS: [Jurisdiction, string][] = [['IN', 'India'], ['US', 'USA'], ['AU', 'Australia']];
 
 const CAPABILITIES = [
   { icon: Leaf, title: 'Innovation Intelligence', text: 'Guided profiler turns a formulation into structured, normalised technical features.' },
@@ -47,9 +49,9 @@ const FAQ = [
 ];
 
 export default function Landing() {
-  const { t, lang, setLang, user } = useApp();
-  const [jur, setJur] = useState('');
-  useEffect(() => { try { setJur(localStorage.getItem('ipsakti.jur') || ''); } catch {} }, []);
+  const { t, lang, setLang, user, jurisdictions, setJurisdictions } = useApp();
+  const toggleJurisdiction = (j: Jurisdiction) =>
+    setJurisdictions(jurisdictions.includes(j) ? jurisdictions.filter((x) => x !== j) : [...jurisdictions, j]);
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -75,22 +77,26 @@ export default function Landing() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-terracotta">Evidence-Grounded IP & Regulatory Intelligence Copilot for Ayurveda</p>
             <h1 className="font-serif text-5xl leading-[1.05] md:text-6xl">{t.appTitle}</h1>
             <p className="mt-5 max-w-xl text-lg text-text-secondary">{t.tagline}</p>
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs">
+            <div className="mt-6 flex flex-wrap items-start gap-6 text-xs">
               <label className="flex items-center gap-1">Language
                 <select className="py-1 text-xs" value={lang} onChange={(e) => setLang(e.target.value as 'en' | 'hi')}>
                   <option value="en">English</option><option value="hi">हिन्दी</option>
                 </select>
               </label>
-              <label className="flex items-center gap-1">Jurisdiction
-                <select className="py-1 text-xs" value={jur} onChange={(e) => { setJur(e.target.value); try { localStorage.setItem('ipsakti.jur', e.target.value); } catch {} }}>
-                  <option value="">Auto-detect / ask me</option><option value="IN">India</option><option value="US">USA</option><option value="AU">Australia</option>
-                </select>
-              </label>
+              <fieldset className="flex items-center gap-3">
+                <legend className="mb-1 w-full text-xs text-text-secondary">Select your jurisdiction</legend>
+                {JURISDICTION_OPTIONS.map(([code, name]) => (
+                  <label key={code} className="flex items-center gap-1.5">
+                    <input type="checkbox" checked={jurisdictions.includes(code)} onChange={() => toggleJurisdiction(code)} />
+                    {name}
+                  </label>
+                ))}
+              </fieldset>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[
                 [user ? '/app/innovations/new' : '/register?next=/app/innovations/new', t.startAnalysis, 'Profile a formulation → classification, pathway, IP, evidence'],
-                [user ? `/app/assistant${jur ? `?jur=${jur}` : ''}` : '/login?demo=1&next=/app/assistant', lang === 'hi' ? 'आईपी / नियामक प्रश्न पूछें' : 'Ask an IP / Regulatory Question', 'Cited, verified answers — or a clear abstention'],
+                [user ? `/app/assistant${jurisdictions[0] ? `?jur=${jurisdictions[0]}` : ''}` : '/login?demo=1&next=/app/assistant', lang === 'hi' ? 'आईपी / नियामक प्रश्न पूछें' : 'Ask an IP / Regulatory Question', 'Cited, verified answers — or a clear abstention'],
                 [user ? '/app/coverage' : '/login?demo=1&next=/app/coverage', lang === 'hi' ? 'स्रोत देखें' : 'Explore Sources', 'What is actually ingested, per jurisdiction'],
               ].map(([href, label, sub], i) => (
                 <Link key={href} href={href} className={`rounded-lg border p-4 transition ${i === 0 ? 'border-deep-green bg-deep-green text-white hover:bg-green' : 'border-surface-border bg-surface-elevated hover:border-green/50'}`}>

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Badge, Card, ErrorState, PageHeader, Spinner, Stat, SupportBadge, fmtDateTime } from '@/components/ui';
+import { Badge, Card, ErrorState, JurisdictionBadge, PageHeader, Spinner, Stat, SupportBadge, fmtDateTime } from '@/components/ui';
 import { get } from '@/lib/api';
 
 export default function CitationMonitoring() {
@@ -31,6 +31,9 @@ export default function CitationMonitoring() {
             </Card>
             <Card title="By claim type">
               <dl className="space-y-1 text-sm">{Object.entries(d.by_claim_type).map(([k, v]) => <div key={k} className="flex justify-between"><dt>{k}</dt><dd>{v as number}</dd></div>)}</dl>
+            </Card>
+            <Card title="By jurisdiction">
+              <dl className="space-y-1 text-sm">{Object.entries(d.by_jurisdiction).map(([k, v]) => <div key={k} className="flex items-center justify-between"><dt>{k === '?' ? 'Not jurisdiction-specific' : <JurisdictionBadge j={k} />}</dt><dd>{v as number}</dd></div>)}</dl>
             </Card>
           </div>
           <Card title={`Verification failures (${d.failures.length})`} subtitle="Unsupported, conflicting or insufficiently-evidenced claims.">

@@ -38,6 +38,9 @@ export default function RagMonitoring() {
             <Card title="By intent">
               <dl className="space-y-1 text-xs">{Object.entries(d.by_intent).map(([k, v]) => <div key={k} className="flex justify-between"><dt>{k}</dt><dd>{v as number}</dd></div>)}</dl>
             </Card>
+            <Card title="By jurisdiction">
+              <dl className="space-y-1 text-xs">{Object.entries(d.by_jurisdiction).map(([k, v]) => <div key={k} className="flex items-center justify-between"><dt>{k === '?' ? 'Not jurisdiction-specific' : <JurisdictionBadge j={k} />}</dt><dd>{v as number}</dd></div>)}</dl>
+            </Card>
             <Card title="Abstention reasons">
               <dl className="space-y-1 text-sm">{Object.entries(d.abstention_reasons).map(([k, v]) => <div key={k} className="flex justify-between"><dt>{k}</dt><dd>{v as number}</dd></div>)}</dl>
             </Card>

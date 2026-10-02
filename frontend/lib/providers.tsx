@@ -2,10 +2,10 @@
 
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { ApiError, get, getWorkspaceId, setWorkspaceId } from './api';
+import { ApiError, get, getJurisdictions, getWorkspaceId, setJurisdictions as setJurisdictionsStorage, setWorkspaceId } from './api';
 import { i18n, Language } from './i18n';
 import { useTrackNavigation } from '@/components/back';
-import type { User } from './types';
+import type { Jurisdiction, User } from './types';
 
 type AppCtx = {
   lang: Language;
@@ -15,6 +15,8 @@ type AppCtx = {
   userLoading: boolean;
   workspaceId: string | null;
   switchWorkspace: (id: string) => void;
+  jurisdictions: Jurisdiction[];
+  setJurisdictions: (js: Jurisdiction[]) => void;
 };
 
 const Ctx = createContext<AppCtx | null>(null);
@@ -44,6 +46,7 @@ function AppProvider({ children }: { children: React.ReactNode }) {
   useTrackNavigation();
   const [lang, setLangState] = useState<Language>('en');
   const [workspaceId, setWs] = useState<string | null>(null);
+  const [jurisdictions, setJurs] = useState<Jurisdiction[]>([]);
 
   useEffect(() => {
     try {
@@ -51,6 +54,7 @@ function AppProvider({ children }: { children: React.ReactNode }) {
       if (l === 'en' || l === 'hi') setLangState(l);
     } catch {}
     setWs(getWorkspaceId());
+    setJurs(getJurisdictions() as Jurisdiction[]);
   }, []);
 
   const me = useQuery({ queryKey: ['me'], queryFn: () => get<User | null>('/auth/session'), retry: false });
@@ -85,8 +89,13 @@ function AppProvider({ children }: { children: React.ReactNode }) {
         setWs(id);
         qc.invalidateQueries();
       },
+      jurisdictions,
+      setJurisdictions: (js) => {
+        setJurisdictionsStorage(js);
+        setJurs(js);
+      },
     }),
-    [lang, me.data, me.isError, me.isLoading, workspaceId, qc]
+    [lang, me.data, me.isError, me.isLoading, workspaceId, jurisdictions, qc]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

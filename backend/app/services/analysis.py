@@ -142,6 +142,11 @@ def compute_gaps(db: Session, inn: Innovation) -> list[dict]:
     if "IN" in (inn.target_markets or []) or any(i.get("source", "") and "india" in (i.get("source") or "").lower() for i in p.ingredients or []):
         gaps.append(_gap("nba-approval", "TK_ABS", "If a patent is sought for an invention based on Indian biological resources, NBA approval (Biological Diversity Act s.6) must be considered.", "MEDIUM",
                          "Confirm sourcing and plan NBA approval / benefit-sharing before IPR grant.", jurisdiction="IN"))
+    if "AU" in (inn.target_markets or []):
+        gaps.append(_gap("au-permitted-ingredients", "REGULATORY",
+                         "Therapeutic Goods listing/registration assumes every ingredient is on the TGA permitted ingredients list — not yet confirmed.",
+                         "MEDIUM", "Check each ingredient against the TGA permitted ingredients determination before listing (AUST L) or registration (AUST R).",
+                         jurisdiction="AU"))
 
     evs = db.execute(select(Evidence).where(Evidence.innovation_id == inn.id)).scalars().all()
     stale = sorted({e.document.title for e in evs if e.document.superseded_by_document_id or (e.document.last_checked and (datetime.now(timezone.utc) - e.document.last_checked).days > 180)})
