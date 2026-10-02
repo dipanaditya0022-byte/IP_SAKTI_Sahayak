@@ -1,11 +1,13 @@
 'use client';
 
 import {
-  BookOpenCheck, FileSearch, FlaskConical, GitBranch, Landmark, Leaf, ScrollText, UserCheck,
+  Beaker, BookOpenCheck, Building2, CircleHelp, Database, FileSearch, FlaskConical, GitBranch,
+  Landmark, Leaf, ListChecks, Microscope, MessagesSquare, Scale, ScrollText, Search, ShieldAlert,
+  ShieldCheck, UserCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LinkButton } from '@/components/ui';
+import { LinkButton, Stat } from '@/components/ui';
 import { useApp } from '@/lib/providers';
 
 const CAPABILITIES = [
@@ -17,6 +19,31 @@ const CAPABILITIES = [
   { icon: ScrollText, title: 'Citation Verification', text: 'Every claim is checked against its cited passage: supported, partial, unsupported, conflicting.' },
   { icon: GitBranch, title: 'Evidence Graph', text: 'Interactive graph where every edge carries provenance back to a source passage.' },
   { icon: UserCheck, title: 'Human Escalation', text: 'One-click review packets for IP, regulatory and domain experts, with a full audit trail.' },
+];
+
+const PIPELINE = [
+  { icon: Search, title: 'Understand', text: 'The query is parsed for intent, jurisdiction and domain terminology — Sanskrit, Hindi, botanical and chemical names are normalised and ambiguities are flagged.' },
+  { icon: Database, title: 'Retrieve', text: 'A hybrid search combines pgvector dense retrieval, Postgres full-text search, source metadata and graph expansion over the curated corpus.' },
+  { icon: ListChecks, title: 'Rerank', text: 'Candidates are deterministically reranked on relevance, lexical match, jurisdiction, authority tier, freshness and document type.' },
+  { icon: MessagesSquare, title: 'Generate', text: 'An answer is drafted — synthesised when an LLM is configured, or assembled from direct quotes when it is not.' },
+  { icon: ShieldCheck, title: 'Verify', text: 'Every claim is bound back to a specific passage and checked for existence, authority, jurisdiction, freshness and semantic support.' },
+  { icon: ShieldAlert, title: 'Abstain', text: 'If the evidence is missing, conflicting or out of scope, the system says so explicitly instead of guessing.' },
+];
+
+const PERSONAS = [
+  { icon: Building2, title: 'Ayurveda startups & MSMEs', text: 'Move from a formulation idea to a structured profile, a classification and a regulatory pathway, without guessing which rules apply where.' },
+  { icon: Scale, title: 'Patent & IP professionals', text: 'Get a feature-to-document matrix and patent-family grouping to scope prior-art search before deciding where to spend drafting effort.' },
+  { icon: Landmark, title: 'Regulatory affairs teams', text: 'Compare provisional pathways across India, USA and Australia side by side, with the assumptions and open questions made explicit.' },
+  { icon: Microscope, title: 'Academic & clinical researchers', text: 'Separate ingredient-level evidence from finished-formulation evidence, and see exactly which passage backs every claim.' },
+];
+
+const FAQ = [
+  { q: 'Is this legal, regulatory or medical advice?', a: 'No. IP-SAKTI Sahayak is decision support only. It does not determine patentability, freedom to operate, regulatory approval or efficacy, and using it does not create attorney-client privilege. Outputs are a starting point for a qualified professional, not a replacement for one.' },
+  { q: 'What happens when the evidence is missing or conflicting?', a: 'The system abstains rather than guesses. It states what was searched, what is missing or conflicting, and what would be needed to answer with confidence — instead of producing a confident-sounding but unsupported answer.' },
+  { q: 'How is Traditional Knowledge handled?', a: 'The system has no TKDL access and never scrapes or reproduces restricted records. Only public or authorised TK context is surfaced, with explicit access limits, attribution and an escalation path for anything that needs expert review.' },
+  { q: 'Which jurisdictions are covered, and are they mixed together?', a: 'India (AYUSH, CDSCO, FSSAI, IP India, NBA), the USA (FDA) and Australia (TGA) are covered, and kept strictly separate — the system never blends rules from one jurisdiction into an answer about another.' },
+  { q: 'Is seeded or demo data clearly marked?', a: 'Yes. Short excerpts of real public instruments are labelled as summaries to verify against the original text; fictional demo patents and guidance notes are labelled fictional; user uploads are labelled unverified until reviewed.' },
+  { q: 'Can I bring my own language model?', a: 'Yes. The backend works with a free local model (Ollama) out of the box, or can be pointed at Gemini, Groq, Grok, OpenAI or DeepSeek. Without a configured provider it still answers — by quoting retrieved passages directly instead of synthesising text.' },
 ];
 
 export default function Landing() {
@@ -91,6 +118,15 @@ export default function Landing() {
           </div>
         </section>
 
+        <section className="border-t border-surface-border py-10">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Stat label="Jurisdictions covered" value="3" hint="India · USA · Australia, kept separate" />
+            <Stat label="Curated source documents" value="40" hint="Statute, regulatory, scientific & TK context" />
+            <Stat label="Citation verification checks" value="10" hint="Per claim, before it is shown as supported" />
+            <Stat label="Automated tests" value="60" hint="Incl. the full user/admin access-rules matrix" />
+          </div>
+        </section>
+
         <section className="border-t border-surface-border py-12">
           <h2 className="mb-6 font-serif text-2xl">What it does</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -104,11 +140,48 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="grid gap-6 border-t border-surface-border py-12 md:grid-cols-3">
+        <section className="border-t border-surface-border py-12">
+          <h2 className="mb-2 font-serif text-2xl">How an answer gets built</h2>
+          <p className="mb-6 max-w-2xl text-sm text-text-secondary">
+            Nothing is generated before something is retrieved, and nothing is shown as supported before it is checked. The same six-step
+            pipeline runs behind every chat answer, every classification and every evidence report.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PIPELINE.map(({ icon: Icon, title, text }, i) => (
+              <div key={title} className="relative rounded-lg border border-surface-border bg-surface-elevated p-4">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-deep-green font-mono text-[11px] text-gold">{i + 1}</span>
+                  <Icon className="h-4 w-4 text-terracotta" aria-hidden />
+                  <h3 className="text-sm font-semibold">{title}</h3>
+                </div>
+                <p className="mt-2 text-xs text-text-secondary">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-surface-border py-12">
+          <h2 className="mb-2 font-serif text-2xl">Built for</h2>
+          <p className="mb-6 max-w-2xl text-sm text-text-secondary">
+            One evidence pipeline, used differently depending on who is asking.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {PERSONAS.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="rounded-lg border border-surface-border bg-surface-elevated p-4">
+                <Icon className="h-5 w-5 text-terracotta" aria-hidden />
+                <h3 className="mt-3 text-sm font-semibold">{title}</h3>
+                <p className="mt-1 text-xs text-text-secondary">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid gap-6 border-t border-surface-border py-12 md:grid-cols-4">
           {[
             ['Jurisdictions kept separate', 'India (AYUSH, CDSCO, FSSAI, IP India, NBA), USA (FDA) and Australia (TGA) are never mixed silently.'],
             ['Safe abstention', 'When evidence is missing, conflicting or out of scope, it says so — with what was searched and what is missing.'],
             ['Honest data labels', 'Seeded statute summaries, fictional demo patents and unverified uploads are always labelled as such.'],
+            ['Full audit trail', 'Every key action is logged with who, what and when; admin access is a separate, server-enforced area.'],
           ].map(([h, p]) => (
             <div key={h}>
               <h3 className="font-semibold">{h}</h3>
@@ -116,9 +189,37 @@ export default function Landing() {
             </div>
           ))}
         </section>
+
+        <section className="border-t border-surface-border py-12">
+          <h2 className="mb-6 flex items-center gap-2 font-serif text-2xl"><CircleHelp className="h-6 w-6 text-terracotta" aria-hidden /> Frequently asked</h2>
+          <div className="divide-y divide-surface-border rounded-lg border border-surface-border bg-surface-elevated">
+            {FAQ.map(({ q, a }) => (
+              <details key={q} className="group p-4 open:bg-surface-muted/40">
+                <summary className="cursor-pointer list-none text-sm font-semibold marker:content-none">
+                  <span className="mr-2 inline-block text-terracotta transition group-open:rotate-45">+</span>{q}
+                </summary>
+                <p className="mt-2 pl-5 text-sm text-text-secondary">{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-surface-border py-14 text-center">
+          <Beaker className="mx-auto h-8 w-8 text-terracotta" aria-hidden />
+          <h2 className="mt-3 font-serif text-3xl">See it on a real formulation</h2>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-text-secondary">
+            The demo workspace ships with a seeded Ayurveda formulation, complete with an intentional ambiguity and a disease-claim flag,
+            so you can see the safety checks trigger, not just the happy path.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <LinkButton href={user ? '/app' : '/login?demo=1'}>{t.exploreDemo}</LinkButton>
+            <LinkButton href={user ? '/app/innovations/new' : '/register?next=/app/innovations/new'} variant="secondary">{t.startAnalysis}</LinkButton>
+          </div>
+        </section>
       </main>
-      <footer className="border-t border-surface-border py-6 text-center text-xs text-text-muted">
-        IP-SAKTI Sahayak · decision support, not legal, regulatory or medical advice · does not create attorney-client privilege
+      <footer className="border-t border-surface-border py-8 text-center text-xs text-text-muted">
+        <p>IP-SAKTI Sahayak · decision support, not legal, regulatory or medical advice · does not create attorney-client privilege</p>
+        <p className="mt-2">India · USA · Australia coverage · evidence-grounded, citation-verified, abstains when unsure</p>
       </footer>
     </div>
   );
