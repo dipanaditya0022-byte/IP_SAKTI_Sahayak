@@ -90,12 +90,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const nav = (
     <nav className="flex h-full flex-col" aria-label="Admin console">
       <div className="flex items-center gap-2 px-4 py-4">
-        <div className="grid h-8 w-8 place-items-center rounded bg-[#C9A24A] font-serif text-[#14100a]">
-          <ShieldCheck className="h-4 w-4" />
+        <div className="grid h-9 w-9 place-items-center rounded bg-[#C9A24A] font-serif text-[#14100a]">
+          <ShieldCheck className="h-[18px] w-[18px]" />
         </div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold text-white">IP-SAKTI Admin</div>
-          <div className="text-[10px] uppercase tracking-wider text-white/40">Console — separate from the app</div>
+          <div className="text-base font-semibold text-white">IP-SAKTI Admin</div>
+          <div className="text-[11px] uppercase tracking-wider text-white/40">Console — separate from the app</div>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-2 pb-4">
@@ -109,7 +109,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           );
         })}
       </div>
-      <div className="border-t border-white/10 p-3 text-[11px] text-white/60">
+      <div className="border-t border-white/10 p-3 text-xs text-white/60">
         <div className="truncate font-medium text-white/80">{admin.name}</div>
         <div className="truncate">{admin.email}</div>
         <Link href="/app" className="mt-2 inline-block underline">← Back to the app</Link>

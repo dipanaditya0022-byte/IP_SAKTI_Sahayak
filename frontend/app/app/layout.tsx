@@ -89,10 +89,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const nav = (
     <nav className="flex h-full flex-col" aria-label="Main">
       <Link href="/app" className="flex items-center gap-2 px-4 py-4">
-        <div className="grid h-8 w-8 place-items-center rounded bg-gold font-serif text-deep-green">स</div>
+        <div className="grid h-9 w-9 place-items-center rounded bg-gold font-serif text-lg text-deep-green">स</div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold text-white">{t.appTitle}</div>
-          <div className="text-[10px] uppercase tracking-wider text-white/50">Evidence copilot</div>
+          <div className="text-base font-semibold text-white">{t.appTitle}</div>
+          <div className="text-[11px] uppercase tracking-wider text-white/50">Evidence copilot</div>
         </div>
       </Link>
       <div className="flex-1 overflow-y-auto px-2 pb-4">
@@ -109,7 +109,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         ))}
       </div>
-      <div className="border-t border-white/10 p-3 text-[11px] text-white/60">
+      <div className="border-t border-white/10 p-3 text-xs text-white/60">
         <Link href="/app/settings" className="flex items-center gap-1.5">
           <span className={cx('h-2 w-2 rounded-full', status === 'ok' ? 'bg-emerald-400' : status ? 'bg-amber-400' : 'bg-white/30')} />
           System {status || 'checking'} · LLM {health.data?.llm_provider || '…'}
