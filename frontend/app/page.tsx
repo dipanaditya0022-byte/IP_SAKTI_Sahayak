@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  Beaker, BookOpenCheck, Building2, CircleHelp, Database, FileSearch, FlaskConical, GitBranch,
+  Beaker, BookOpenCheck, Building2, ChevronDown, CircleHelp, Database, FileSearch, FlaskConical, GitBranch,
   Landmark, Leaf, ListChecks, Microscope, MessagesSquare, Scale, ScrollText, Search, ShieldAlert,
   ShieldCheck, UserCheck,
 } from 'lucide-react';
 import Link from 'next/link';
-import { LinkButton, Stat } from '@/components/ui';
+import { LinkButton, Popover, Stat } from '@/components/ui';
 import { useApp } from '@/lib/providers';
 import type { Jurisdiction } from '@/lib/types';
 
@@ -52,6 +52,9 @@ export default function Landing() {
   const { t, lang, setLang, user, jurisdictions, setJurisdictions } = useApp();
   const toggleJurisdiction = (j: Jurisdiction) =>
     setJurisdictions(jurisdictions.includes(j) ? jurisdictions.filter((x) => x !== j) : [...jurisdictions, j]);
+  const jurisdictionLabel = jurisdictions.length
+    ? JURISDICTION_OPTIONS.filter(([code]) => jurisdictions.includes(code)).map(([, name]) => name).join(', ')
+    : 'Select jurisdiction';
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -83,15 +86,29 @@ export default function Landing() {
                   <option value="en">English</option><option value="hi">हिन्दी</option>
                 </select>
               </label>
-              <fieldset className="flex items-center gap-3">
-                <legend className="mb-1 w-full text-xs text-text-secondary">Select your jurisdiction</legend>
-                {JURISDICTION_OPTIONS.map(([code, name]) => (
-                  <label key={code} className="flex items-center gap-1.5">
-                    <input type="checkbox" checked={jurisdictions.includes(code)} onChange={() => toggleJurisdiction(code)} />
-                    {name}
-                  </label>
-                ))}
-              </fieldset>
+              <div className="flex items-center gap-1">Jurisdiction
+                <Popover
+                  align="left"
+                  trigger={
+                    <span className="flex items-center gap-1 rounded border border-surface-border bg-surface-elevated px-2 py-1 text-xs hover:border-green/50">
+                      <span className={jurisdictions.length ? '' : 'text-text-muted'}>{jurisdictionLabel}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-text-muted" aria-hidden />
+                    </span>
+                  }
+                >
+                  <fieldset className="px-3 py-2">
+                    <legend className="mb-1.5 text-xs font-medium text-text-secondary">Select your jurisdiction</legend>
+                    <div className="space-y-1.5">
+                      {JURISDICTION_OPTIONS.map(([code, name]) => (
+                        <label key={code} className="flex items-center gap-2 text-sm" onClick={(e) => e.stopPropagation()}>
+                          <input type="checkbox" checked={jurisdictions.includes(code)} onChange={() => toggleJurisdiction(code)} />
+                          {name}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                </Popover>
+              </div>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[

@@ -8,7 +8,7 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button, Spinner, cx } from '@/components/ui';
+import { Button, ProfileMenu, Spinner, cx } from '@/components/ui';
 import { post } from '@/lib/api';
 import { AdminProvider, useAdmin } from '@/lib/admin';
 
@@ -131,10 +131,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
           <span className="rounded bg-[#1A1108] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#C9A24A]">Admin console</span>
           <div className="ml-auto flex items-center gap-3">
-            <span className="hidden text-xs text-[#4F5A53] md:inline">{admin.role}</span>
-            <button onClick={signOut} className="flex items-center gap-1 text-xs text-[#4F5A53] hover:text-[#1A2520]">
-              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sign out</span>
-            </button>
+            <ProfileMenu
+              name={admin.name}
+              subtitle={`${admin.email} · ${admin.role}`}
+              accent="admin"
+              items={[
+                { label: 'Settings', href: '/admin/settings', icon: Settings },
+                { label: 'Back to the app', href: '/app' },
+                { label: 'Sign out', onClick: signOut, icon: LogOut, danger: true },
+              ]}
+            />
           </div>
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-8">{children}</main>

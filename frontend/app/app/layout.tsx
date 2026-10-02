@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BackButton } from '@/components/back';
-import { Spinner, cx } from '@/components/ui';
+import { ProfileMenu, Spinner, cx } from '@/components/ui';
 import { get, post, setWorkspaceId } from '@/lib/api';
 import { useApp } from '@/lib/providers';
 
@@ -153,10 +153,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </button>
               ))}
             </div>
-            <span className="hidden text-xs text-text-secondary md:inline">{user.name}{user.role === 'ADMIN' ? ' · admin' : ''}</span>
-            <button onClick={signOut} className="flex items-center gap-1 text-xs text-text-secondary hover:text-text-main" aria-label={t.signOut}>
-              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">{t.signOut}</span>
-            </button>
+            <ProfileMenu
+              name={user.name}
+              subtitle={`${user.email}${user.role === 'ADMIN' ? ' · Admin' : ''}`}
+              items={[
+                { label: t.nav.settings, href: '/app/settings', icon: Settings },
+                { label: t.signOut, onClick: signOut, icon: LogOut, danger: true },
+              ]}
+            />
           </div>
         </header>
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-8">{children}</main>

@@ -1,9 +1,9 @@
 'use client';
 
 import clsx from 'clsx';
-import { AlertTriangle, CheckCircle2, CircleHelp, Loader2, RefreshCw, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronDown, CircleHelp, Loader2, RefreshCw, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { ApiError } from '@/lib/api';
 import { useApp } from '@/lib/providers';
 
@@ -280,6 +280,80 @@ export function Notice({ tone = 'warn', children, title }: { tone?: 'warn' | 'in
       {title && <div className="font-semibold">{title}</div>}
       <div className={title ? 'mt-0.5' : ''}>{children}</div>
     </div>
+  );
+}
+
+/** Click-to-open panel anchored under `trigger`; closes on outside click, Escape, or picking
+ * an item inside it (clicks inside the panel bubble up and close it). */
+export function Popover({ trigger, children, align = 'right', panelClassName }: { trigger: ReactNode; children: ReactNode; align?: 'left' | 'right'; panelClassName?: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {trigger}
+      </button>
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className={cx('absolute z-50 mt-2 min-w-[200px] overflow-hidden rounded-md border border-surface-border bg-surface-elevated py-1 shadow-lg',
+            align === 'right' ? 'right-0' : 'left-0', panelClassName)}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export type MenuItem = { label: string; href?: string; onClick?: () => void; icon?: any; danger?: boolean };
+
+/** Top-right account control: avatar + name, opening a dropdown with a subtitle (role/email)
+ * and a list of actions (Settings, Sign out, …). Always driven by real session data passed
+ * in by the caller — never invents a name/role of its own. */
+export function ProfileMenu({ name, subtitle, items, accent = 'app' }: { name: string; subtitle?: string; items: MenuItem[]; accent?: 'app' | 'admin' }) {
+  const initial = (name || '?').trim().charAt(0).toUpperCase();
+  return (
+    <Popover
+      trigger={
+        <span className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-xs transition hover:bg-surface-muted">
+          <span className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-semibold', accent === 'admin' ? 'bg-[#C9A24A] text-[#14100a]' : 'bg-deep-green text-white')}>
+            {initial}
+          </span>
+          <span className="hidden max-w-[9rem] truncate font-medium sm:inline">{name}</span>
+          <ChevronDown className="h-3.5 w-3.5 text-text-muted" aria-hidden />
+        </span>
+      }
+    >
+      {subtitle && <div className="truncate border-b border-surface-border px-3 py-2 text-xs text-text-muted">{subtitle}</div>}
+      {items.map((it) =>
+        it.href ? (
+          <Link key={it.label} href={it.href} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-muted">
+            {it.icon && <it.icon className="h-4 w-4" aria-hidden />} {it.label}
+          </Link>
+        ) : (
+          <button key={it.label} type="button" onClick={it.onClick}
+            className={cx('flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-muted', it.danger && 'text-danger')}>
+            {it.icon && <it.icon className="h-4 w-4" aria-hidden />} {it.label}
+          </button>
+        )
+      )}
+    </Popover>
   );
 }
 
