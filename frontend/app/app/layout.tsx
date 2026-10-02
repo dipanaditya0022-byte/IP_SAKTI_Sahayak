@@ -98,11 +98,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 overflow-y-auto px-2 pb-4">
         {groups.map((g, i) => (
           <div key={i} className="mt-3">
-            {g.title && <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">{g.title}</div>}
+            {g.title && <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-white/40">{g.title}</div>}
             {g.items.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href} aria-current={isActive(href) ? 'page' : undefined}
-                className={cx('flex items-center gap-2 rounded px-2 py-1.5 text-[13px]', isActive(href) ? 'bg-white/10 font-medium text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}>
-                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                className={cx('flex items-center gap-2 rounded px-2 py-2 text-[15px]', isActive(href) ? 'bg-white/10 font-medium text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}>
+                <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden />
                 {label}
               </Link>
             ))}
