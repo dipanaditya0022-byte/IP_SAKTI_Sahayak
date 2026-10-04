@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BarChart3, Grid3x3, Lock, MessageSquareWarning, BookOpen, Bot, ClipboardList, Database, FileStack, FileText, FlaskConical, GitBranch,
-  Landmark, Layers, LayoutDashboard, Leaf, LogOut, Map, Menu, PlusCircle, ScrollText, Settings, ShieldAlert, ShieldCheck,
+  Landmark, Layers, LayoutDashboard, Leaf, LogOut, Map, Menu, PlusCircle, ScrollText, Settings, ShieldAlert,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -114,12 +114,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <span className={cx('h-2 w-2 rounded-full', status === 'ok' ? 'bg-emerald-400' : status ? 'bg-amber-400' : 'bg-white/30')} />
           System {status || 'checking'} · LLM {health.data?.llm_provider || '…'}
         </Link>
-        {user.role === 'ADMIN' && (
-          <Link href="/admin/login" className="mt-2 flex items-center gap-1.5 rounded border border-white/10 px-2 py-1 text-white/80 hover:border-white/30 hover:text-white">
-            <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            {lang === 'hi' ? 'व्यवस्थापक कंसोल (अलग साइन-इन) →' : 'Admin console (separate sign-in) →'}
-          </Link>
-        )}
       </div>
     </nav>
   );
@@ -155,7 +149,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             <ProfileMenu
               name={user.name}
-              subtitle={`${user.email}${user.role === 'ADMIN' ? ' · Admin' : ''}`}
+              subtitle={user.email}
               items={[
                 { label: t.nav.settings, href: '/app/settings', icon: Settings },
                 { label: t.signOut, onClick: signOut, icon: LogOut, danger: true },

@@ -34,6 +34,9 @@
   .label {
     @apply block text-xs font-semibold uppercase tracking-wide text-text-secondary mb-1;
   }
+  .glass-card {
+    @apply bg-surface border border-surface-border rounded-2xl shadow-soft-elevated;
+  }
   .prose-report h1 {
     @apply font-serif text-3xl mb-2;
   }
@@ -61,12 +64,51 @@
   }
 }
 
+/* High-contrast accessibility mode, toggled via the utility bar. */
+html[data-contrast='high'] {
+  --tw-text-opacity: 1;
+}
+html[data-contrast='high'] body {
+  background: #ffffff;
+  color: #000000;
+}
+html[data-contrast='high'] .text-text-secondary,
+html[data-contrast='high'] .text-text-muted {
+  color: #1a1a1a !important;
+}
+html[data-contrast='high'] .border-surface-border {
+  border-color: #000000 !important;
+}
+html[data-contrast='high'] a {
+  text-decoration: underline;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation-play-state: paused !important;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ddd7c8;
+  background: #E2E8F0;
   border-radius: 4px;
 }
 

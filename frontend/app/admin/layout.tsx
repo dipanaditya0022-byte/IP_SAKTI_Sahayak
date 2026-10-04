@@ -58,7 +58,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   useEffect(() => setOpen(false), [path]);
 
   if (loading || !session) {
-    return <div className="grid min-h-screen place-items-center bg-[#14100a]"><Spinner label="Checking admin session…" /></div>;
+    return <div className="grid min-h-screen place-items-center bg-[#0B1E36]"><Spinner label="Checking admin session…" /></div>;
   }
 
   if (session.state === 'user_not_admin') {
@@ -74,7 +74,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
   if (session.state === 'signed_out' || !admin) {
-    return <div className="grid min-h-screen place-items-center bg-[#14100a]"><Spinner label="Redirecting to admin sign-in…" /></div>;
+    return <div className="grid min-h-screen place-items-center bg-[#0B1E36]"><Spinner label="Redirecting to admin sign-in…" /></div>;
   }
 
   async function signOut() {
@@ -90,7 +90,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const nav = (
     <nav className="flex h-full flex-col" aria-label="Admin console">
       <div className="flex items-center gap-2 px-4 py-4">
-        <div className="grid h-9 w-9 place-items-center rounded bg-[#C9A24A] font-serif text-[#14100a]">
+        <div className="grid h-9 w-9 place-items-center rounded bg-[#F59E0B] font-serif text-[#0B1E36]">
           <ShieldCheck className="h-[18px] w-[18px]" />
         </div>
         <div className="leading-tight">
@@ -118,18 +118,18 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex min-h-screen bg-[#F7F3E8]">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-[#1A1108] lg:block">{nav}</aside>
+    <div className="flex min-h-screen bg-[#F7F9FC]">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-[#102A47] lg:block">{nav}</aside>
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <button className="absolute inset-0 bg-black/40" aria-label="Close menu" onClick={() => setOpen(false)} />
-          <aside className="relative h-full w-64 bg-[#1A1108]">{nav}</aside>
+          <aside className="relative h-full w-64 bg-[#102A47]">{nav}</aside>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[#DDD7C8] bg-[#F7F3E8]/95 px-4 py-2 backdrop-blur">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[#E2E8F0] bg-[#F7F9FC]/95 px-4 py-2 backdrop-blur">
           <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
-          <span className="rounded bg-[#1A1108] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#C9A24A]">Admin console</span>
+          <span className="rounded bg-[#102A47] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-[#F59E0B]">Admin console</span>
           <div className="ml-auto flex items-center gap-3">
             <ProfileMenu
               name={admin.name}
@@ -151,9 +151,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
 function AccessDenied({ title = 'Access denied', reason, cta = 'Go to admin login' }: { title?: string; reason: string; cta?: string }) {
   return (
-    <div className="grid min-h-screen place-items-center bg-[#14100a] px-4">
-      <div className="w-full max-w-md rounded-lg border border-white/10 bg-[#1A1108] p-6 text-center text-white">
-        <ShieldAlert className="mx-auto h-10 w-10 text-[#C9A24A]" aria-hidden />
+    <div className="grid min-h-screen place-items-center bg-[#0B1E36] px-4">
+      <div className="w-full max-w-md rounded-lg border border-white/10 bg-[#102A47] p-6 text-center text-white">
+        <ShieldAlert className="mx-auto h-10 w-10 text-[#F59E0B]" aria-hidden />
         <h1 className="mt-3 font-serif text-2xl text-white">{title}</h1>
         <p className="mt-2 text-sm text-white/70">{reason}</p>
         <p className="mt-1 text-xs text-white/50">Administrator access is required. This is enforced on the server for every admin request, not just in this screen.</p>

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import current_user, get_db, resolve_workspace
 from app.core.responses import AppError, ok
-from app.models.orm import Organization, User, Workspace, WorkspaceMember, WorkspaceRole
+from app.models.orm import Organization, User, UserRole, Workspace, WorkspaceMember, WorkspaceRole
 from app.schemas import MemberIn, WorkspaceIn, WorkspacePatch
 from app.services.audit import audit
 
@@ -54,6 +54,7 @@ def get_workspace(workspace_id: str, db: Session = Depends(get_db), user: User =
     members = [
         {"user_id": m.user_id, "name": m.user.name, "email": m.user.email, "role": m.role.value}
         for m in db.execute(select(WorkspaceMember).where(WorkspaceMember.workspace_id == w.id)).scalars()
+        if m.user.role != UserRole.ADMIN
     ]
     return ok(ws_view(w, ctx.role.value, members))
 

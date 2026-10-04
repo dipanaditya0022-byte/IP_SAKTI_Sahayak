@@ -8,17 +8,17 @@ import { Badge, Card, ErrorState, Spinner } from '@/components/ui';
 import { useInnovationData } from '@/lib/hooks';
 
 const COLUMNS: Record<string, { x: number; color: string }> = {
-  'Evidence Gap': { x: 0, color: '#A33B2F' },
-  Claim: { x: 260, color: '#9A533B' },
-  Feature: { x: 260, color: '#2B5C8A' },
-  Ingredient: { x: 260, color: '#194C3D' },
-  Innovation: { x: 560, color: '#123C30' },
-  Patent: { x: 860, color: '#8A5A12' },
-  'Scientific Study': { x: 860, color: '#2F6B4F' },
-  'Traditional Knowledge Context': { x: 860, color: '#7A5B12' },
-  Regulation: { x: 1160, color: '#1A2520' },
-  Authority: { x: 1160, color: '#4F5A53' },
-  Jurisdiction: { x: 1440, color: '#2B5C8A' },
+  'Evidence Gap': { x: 0, color: '#C62828' },
+  Claim: { x: 260, color: '#D97706' },
+  Feature: { x: 260, color: '#1D4E89' },
+  Ingredient: { x: 260, color: '#16845B' },
+  Innovation: { x: 560, color: '#12355B' },
+  Patent: { x: 860, color: '#0E7490' },
+  'Scientific Study': { x: 860, color: '#138A5B' },
+  'Traditional Knowledge Context': { x: 860, color: '#92400E' },
+  Regulation: { x: 1160, color: '#172033' },
+  Authority: { x: 1160, color: '#64748B' },
+  Jurisdiction: { x: 1440, color: '#1D4E89' },
 };
 
 export default function GraphTab() {
@@ -37,12 +37,12 @@ export default function GraphTab() {
       const y = (counters[col.x] = (counters[col.x] ?? -1) + 1) * 78;
       return {
         id: n.id, position: { x: col.x, y: n.type === 'Innovation' ? 240 : y }, data: { label: n.label, raw: n },
-        style: { background: n.type === 'Innovation' ? col.color : '#FFFDF8', color: n.type === 'Innovation' ? '#fff' : '#1A2520', border: `2px solid ${col.color}`, borderRadius: 6, fontSize: 11, width: 210, padding: 6 },
+        style: { background: n.type === 'Innovation' ? col.color : '#FFFFFF', color: n.type === 'Innovation' ? '#fff' : '#172033', border: `2px solid ${col.color}`, borderRadius: 6, fontSize: 11, width: 210, padding: 6 },
       };
     });
     const edges: Edge[] = q.data.edges.filter((e: any) => ids.has(e.source) && ids.has(e.target)).map((e: any) => ({
       id: e.id, source: e.source, target: e.target, label: e.type, data: e,
-      labelStyle: { fontSize: 9, fill: '#4F5A53' }, style: { stroke: e.type === 'REQUIRES_REVIEW' || e.type === 'HAS_GAP' ? '#A33B2F' : '#9a9a8c' },
+      labelStyle: { fontSize: 9, fill: '#64748B' }, style: { stroke: e.type === 'REQUIRES_REVIEW' || e.type === 'HAS_GAP' ? '#C62828' : '#94A3B8' },
       markerEnd: { type: MarkerType.ArrowClosed },
     }));
     return { nodes, edges };

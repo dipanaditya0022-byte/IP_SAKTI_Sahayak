@@ -70,7 +70,7 @@ const TONES = {
   warn: 'bg-warn-bg text-warn border-warn/20',
   danger: 'bg-danger-bg text-danger border-danger/20',
   info: 'bg-info-bg text-info border-info/20',
-  gold: 'bg-[#F6EDD5] text-[#7A5B12] border-gold/30',
+  gold: 'bg-[#FDF1DC] text-[#92400E] border-gold/30',
   dark: 'bg-deep-green text-white border-deep-green',
 };
 
@@ -332,7 +332,7 @@ export function ProfileMenu({ name, subtitle, items, accent = 'app' }: { name: s
     <Popover
       trigger={
         <span className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-xs transition hover:bg-surface-muted">
-          <span className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-semibold', accent === 'admin' ? 'bg-[#C9A24A] text-[#14100a]' : 'bg-deep-green text-white')}>
+          <span className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-semibold', accent === 'admin' ? 'bg-[#F59E0B] text-[#172033]' : 'bg-deep-green text-white')}>
             {initial}
           </span>
           <span className="hidden max-w-[9rem] truncate font-medium sm:inline">{name}</span>

@@ -134,7 +134,7 @@ export function SourceDrawer({ evidence, onClose }: { evidence: Evidence | null;
             {doc.isError && <ErrorState error={doc.error} onRetry={() => doc.refetch()} />}
             <div className="space-y-2">
               {doc.data?.chunks?.map((c: any) => (
-                <div key={c.id} className={cx('rounded border p-2 text-xs', c.id === evidence.chunk_id ? 'border-gold bg-[#FBF5E6]' : 'border-surface-border')}>
+                <div key={c.id} className={cx('rounded border p-2 text-xs', c.id === evidence.chunk_id ? 'border-gold bg-[#FDF1DC]' : 'border-surface-border')}>
                   <div className="font-semibold text-text-secondary">{c.section || `Passage ${c.index + 1}`}</div>
                   <p>{c.content}</p>
                 </div>

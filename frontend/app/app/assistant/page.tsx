@@ -395,7 +395,7 @@ function ReportIssue({ m, onDone }: { m: ChatMessage; onDone: () => void }) {
       <div className="flex flex-wrap gap-2">
         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Issue type" className="py-1 text-xs">
           <option value="WRONG_ANSWER">Wrong answer</option><option value="WRONG_SOURCE">Wrong / irrelevant source</option>
-          <option value="CITATION_NOT_SUPPORTING">Citation doesn't support the claim</option><option value="OUTDATED_SOURCE">Outdated source</option>
+          <option value="CITATION_NOT_SUPPORTING">Citation doesn&apos;t support the claim</option><option value="OUTDATED_SOURCE">Outdated source</option>
           <option value="UNSAFE">Unsafe / out of bounds</option><option value="OTHER">Other</option>
         </select>
         <select value={kp} onChange={(e) => setKp(e.target.value)} aria-label="Key point" className="py-1 text-xs">

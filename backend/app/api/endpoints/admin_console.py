@@ -264,8 +264,9 @@ async def ingest_document(request: Request, background: BackgroundTasks, file: U
         job = create_job(db, filename=file.filename or "upload", data=data, meta=meta, source_id=source_id, workspace_id=None, user_id=admin.id)
     except AppError as exc:
         db.rollback()
-        db.add(IngestionJob(source_id=source_id, file_name=(file.filename or "upload")[:300], status="FAILED", error=f"{exc.code}: {exc.message}",
-                            created_by=admin.id, finished_at=datetime.now(timezone.utc), steps=[{"step": "failed", "error": exc.code}]))
+        if db.get(Source, source_id):
+            db.add(IngestionJob(source_id=source_id, file_name=(file.filename or "upload")[:300], status="FAILED", error=f"{exc.code}: {exc.message}",
+                                created_by=admin.id, finished_at=datetime.now(timezone.utc), steps=[{"step": "failed", "error": exc.code}]))
         audit(db, "document_ingest_failed", user_id=admin.id, entity_type="ingestion", request=request, error=exc.code, scope="global")
         raise
     audit(db, "document_ingest_queued", user_id=admin.id, entity_type="ingestion", entity_id=job.id, request=request, scope="global")

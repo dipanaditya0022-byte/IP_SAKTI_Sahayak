@@ -192,6 +192,7 @@ def seed_people(db, src) -> dict:
     users = {}
     for email, name, role, wrole in (
         ("admin@ipsakti.demo", "Demo Admin", UserRole.ADMIN, WorkspaceRole.OWNER),
+        ("user@ipsakti.demo", "Demo User", UserRole.USER, WorkspaceRole.RESEARCHER),
         ("researcher@ipsakti.demo", "Demo Researcher", UserRole.USER, WorkspaceRole.RESEARCHER),
         ("reviewer@ipsakti.demo", "Demo Reviewer", UserRole.USER, WorkspaceRole.REVIEWER),
     ):
@@ -249,7 +250,7 @@ def main(argv=None) -> int:
         db.commit()
         n_chunks = db.execute(text("SELECT count(*) FROM document_chunks")).scalar()
         log.info("Seeded %d sources, %d documents, %d chunks. Demo innovation: %s", len(c["sources"]), len(c["docs"]) + 1, n_chunks, inn.id)
-        log.info("Demo logins (password %s): admin@ipsakti.demo, researcher@ipsakti.demo, reviewer@ipsakti.demo", DEMO_PASSWORD)
+        log.info("Demo logins (password %s): admin@ipsakti.demo, user@ipsakti.demo, researcher@ipsakti.demo, reviewer@ipsakti.demo", DEMO_PASSWORD)
         return 0
     finally:
         db.close()

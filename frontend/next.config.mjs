@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Baked into the client bundle at build time (not read at runtime) so the footer's
+  // "Last updated" line reflects the actual build, not the visitor's clock.
+  env: { NEXT_PUBLIC_BUILD_DATE: new Date().toISOString().slice(0, 10) },
   typescript: {
     ignoreBuildErrors: false,
   },

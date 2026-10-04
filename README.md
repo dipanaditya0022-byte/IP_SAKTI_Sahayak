@@ -6,10 +6,10 @@
 
 IP-SAKTI Sahayak is a decision-support platform that helps Ayurveda researchers, startups, MSMEs, and patent and regulatory professionals navigate intellectual property, traditional knowledge, scientific evidence and regulation across **India, the USA and Australia**. Every answer it gives is grounded in retrieved, citable source material. It is *not* a patent agent, lawyer, regulator, medical advisor, TKDL mirror, filing system or approval predictor, and it does not claim to be any of those.
 
-**Repository:** https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak
+**Repository:** https://github.com/dipanaditya0022-byte/IP_SAKTI_Sahayak
 
 ```bash
-git clone https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak.git
+git clone https://github.com/dipanaditya0022-byte/IP_SAKTI_Sahayak.git
 ```
 
 ---
@@ -33,7 +33,7 @@ git clone https://github.com/dipanaditya0022-byte/IP-SAKTI-Sahayak.git
 | Area | What it does |
 |---|---|
 | Auth & workspaces | Register/login (bcrypt + JWT in an httpOnly cookie), workspace RBAC (OWNER/ADMIN/RESEARCHER/REVIEWER/VIEWER), workspace isolation, CSRF header check, session expiry, brute-force throttling |
-| Sign-in | One combined sign-in screen (`/login`, also reachable at `/admin/login`) with a **User / Admin** toggle, User selected by default. Each mode posts to its own endpoint and sets its own scoped session cookie, so the two are never mixed even though the form is shared |
+| Sign-in | User sign-in at `/login`. Administrators use a separate sign-in page that is not linked from the public site. Each sign-in posts to its own endpoint and sets its own scoped session cookie, so the two are never mixed |
 | Admin console | A fully separate area with its own scoped `admin` session cookie — a regular app session never grants access, even for an ADMIN-role account. Covers the system dashboard, users, workspaces, source registry, document management (review/reject/re-index), RAG monitoring, citation verification monitoring, evaluation, escalations (assign + notes), feedback, a filterable audit log with CSV export, and read-only settings |
 | Innovation Profiler | 7-step wizard producing a structured profile: technical features, terminology normalisation, and missing information or ambiguities that are flagged rather than invented, with user editing/confirmation at every step |
 | Terminology engine | Sanskrit / Hindi / English / botanical / chemical name mapping; ambiguous common names (e.g. *Brahmi*) are flagged for the user to resolve, never silently mapped |
@@ -143,17 +143,17 @@ Restart the backend and check `GET /health/llm` (or the admin console's System H
 
 ## Demo
 
-App logins (password `Demo@12345`): `researcher@ipsakti.demo` (Researcher), `reviewer@ipsakti.demo` (Reviewer). The **Explore Demo** link on the landing page pre-fills the researcher login.
+Seeded demo accounts are listed in the internal demo guide (`DEMO.md`), not in this README. On the sign-in page, the **Use demo account** button fills the demo user's credentials, and you then sign in.
 
 **Suggested walkthrough:** Login → Dashboard → *AyuCalm-X (DEMO)* → Profile (note the Brahmi ambiguity and the disease-claim flag) → *Ask about this innovation* (citations, verification, search trace, conflicting sources) → Scientific (ingredient vs. formulation evidence) → Patents (feature matrix, families) → Traditional Knowledge → Classification → Regulatory Passport (India / USA / Australia comparison) → Gaps & Risk → Evidence Graph (click through nodes and edges) → Escalation & Report → export → Audit Trail.
 
 ### Admin console (separate area, separate session)
 
-The admin console is a fully separate part of the site, not a tab inside the app. Open **http://localhost:3000/login** (or go straight to `/admin/login`) and select the **Admin** tab — credentials `admin@ipsakti.demo` / `Demo@12345`. It requires its own sign-in even for an ADMIN-role account that is already signed in to the app: choosing **User** and entering the same admin credentials only opens the regular app session, never the console. From inside the app, an ADMIN-role user also sees an "Admin console (separate sign-in)" link at the bottom of the sidebar.
+The admin console is a fully separate part of the site with its own sign-in page and session. It is not linked from the public pages. An ADMIN-role account that is already signed in to the app still needs the separate admin sign-in; the app session never opens the console.
 
 It covers: a system-wide dashboard (analytics, health, retention), Users, Workspaces, Source Registry, Documents (upload, review, reject, re-index), RAG Monitoring (retrieval stats, failed retrievals, abstentions, latency), Citation Verification Monitoring, RAG Evaluation (runs live), Escalations (assign a reviewer, add notes), Feedback, Audit Logs (filterable, with CSV export), and Settings (effective configuration, secrets masked).
 
-For a production deployment, do not rely on the fixed-password demo admin above — set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` and run `PYTHONPATH=backend:. .venv/bin/python -m app.seed.create_admin` once to create or promote a real admin account.
+For a production deployment, do not rely on the seeded demo admin account — set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` and run `PYTHONPATH=backend:. .venv/bin/python -m app.seed.create_admin` once to create or promote a real admin account.
 
 Useful assistant prompts: the six example cards on the empty chat screen cover a factual question, a regulatory question, a cross-jurisdiction question, a Hindi question, a prior-art search and a restricted-TKDL refusal.
 

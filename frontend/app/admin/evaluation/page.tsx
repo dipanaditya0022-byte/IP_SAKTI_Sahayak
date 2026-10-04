@@ -25,7 +25,7 @@ export default function Evaluation() {
       {run.isPending && <Card><ProgressSteps steps={['Running the question set through the pipeline and baselines…', 'Scoring retrieval & citations…', 'Computing metrics…']} active={active} /></Card>}
       {run.isError && <ErrorState error={run.error} />}
       {q.isLoading && <Spinner />}
-      {!latest && q.data && <Notice tone="info">No evaluation has been run yet. Click "Run evaluation".</Notice>}
+      {!latest && q.data && <Notice tone="info">No evaluation has been run yet. Click &ldquo;Run evaluation&rdquo;.</Notice>}
       {latest && (
         <>
           <p className="text-xs text-text-muted">Run {fmtDateTime(latest.created_at)} · LLM {latest.llm_provider} · embeddings {latest.embedding_provider} · passed {latest.metrics.passed}/{latest.metrics.questions}</p>
