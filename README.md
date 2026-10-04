@@ -26,7 +26,9 @@ git clone https://github.com/dipanaditya0022-byte/IP_SAKTI_Sahayak.git
 - [Data & source policy](#data--source-policy)
 - [Security](#security)
 - [Testing](#testing)
+- [Evaluation](#evaluation)
 - [Known limitations](#known-limitations)
+- [Future scope](#future-scope)
 
 ## Features
 
@@ -53,6 +55,7 @@ git clone https://github.com/dipanaditya0022-byte/IP_SAKTI_Sahayak.git
 | Governance | A computed jurisdiction coverage matrix (Built/Partial/Planned), a provision map, heuristic confidence with visible signals, explicit TKDL status, a structured feedback queue, a corpus update queue with named curators, retention purge, a data-handling page, and cost/latency metrics — see `docs/GAP_CLOSURE.md` for the detailed write-up |
 | Audit & observability | An audit trail for every key action (IP addresses stored only as a salted hash), with structured JSON request logs carrying request_id/user/workspace/latency |
 | Multilingual | English and Hindi UI; Hindi questions are answered via terminology expansion over the English source corpus, preserving names, section numbers and titles |
+| Accessibility | Text-size control (100% / 112.5% / 125%), high-contrast mode, skip-to-content link and visible focus rings. The landing hero is laid out to fit one screen at each text size |
 
 ## Architecture
 
@@ -70,6 +73,7 @@ Browser ──► Next.js 15 (App Router, TanStack Query, Tailwind, React Flow)
 ```
 
 - **LLM:** a provider abstraction (`OpenAICompatibleProvider`) covering `ollama` (free, local, private — the default in this repo's `.env`), `gemini`, `groq`, `grok`, `openai` and `deepseek`, plus a `mock` fallback used by default in `.env.example`. Under `mock`, answers are **extractive**: they quote retrieved passages directly and are still run through citation verification. Nothing is synthesised without a traceable source.
+- **Frontend route guards:** `frontend/middleware.ts` redirects `/app/*` without a user session cookie to `/login`, and `/admin/*` without an admin session cookie to `/admin/login`. The middleware checks cookie presence only; the backend validates every token on every request.
 - **Embeddings:** `hashing` (the default — offline character/word n-gram hashing at 1024 dimensions), `openai` (`text-embedding-3-small`, also 1024-d) or `bge_m3` (local). DeepSeek has no embeddings API of its own, so it is paired with `hashing` or `openai`.
 
 ## Folder structure
@@ -83,7 +87,9 @@ rag/, ingestion/               earlier local-store retriever, PDF parser and sec
 frontend/
   app/ (landing, login, register, app/**)   components/   lib/ (api, i18n, providers, hooks, types)
 tests/                          pytest suite incl. the end-to-end integration flow
-docker/                         backend & frontend Dockerfiles      docker-compose.yml
+docker/                         backend & frontend Dockerfiles
+docker-compose.yml              Postgres (and optional full stack) at the repo root
+docs/                           technical report, MVP overview, walkthrough (docs/reports), GAP_CLOSURE.md
 ```
 
 ## One-command start (demo machine)
@@ -176,6 +182,7 @@ Source tiers: 1 official law/regulator · 2 international official · 3 peer-rev
 - Upload checks: extension allowlist, magic-byte signature check, size limit, UTF-8 validation, rejection of PDFs carrying JavaScript/Launch actions, text sanitisation, and duplicate-hash detection.
 - Retrieved text is always treated as **data**, never as instructions: instruction-like text is flagged at ingestion, down-ranked, labelled in the UI, excluded from key points, and explicitly forbidden from being followed by the LLM prompt.
 - Rate limits on chat, search, ingest and reports; standard security headers; restricted CORS; the error envelope never leaks stack traces.
+- Admin sign-in is a separate page at `/admin/login`, linked from no public page. Demo credentials are kept in the internal demo guide, not in public pages.
 - Structured logs never include request bodies or confidential innovation text.
 
 ## Testing
@@ -185,7 +192,7 @@ docker compose up -d postgres
 .venv/bin/python -m pytest -q          # uses a separate ipsakti_test database, migrated and seeded automatically
 ```
 
-60 tests cover (including LLM mode via a fake provider, OCR, coverage, provisions, feedback and lifecycle behaviour):
+69 tests pass (`tests/`: auth security 15, RAG 16, retrieval 10, governance 9, jurisdiction patents 9, LLM mode 7, integration flow 3). They cover, among other things, LLM mode via a fake provider, OCR, coverage, provisions, feedback and lifecycle behaviour:
 - auth, RBAC, CSRF and workspace isolation;
 - the **user/admin access-rules matrix**: unauthenticated requests redirect to login, USER-role access to admin routes is forbidden, ADMIN-role access is allowed, and user data stays isolated even when viewed from the admin document view;
 - upload validation and prompt-injection flagging;
@@ -196,8 +203,35 @@ docker compose up -d postgres
 - the **full end-to-end flow** (user → workspace → innovation → profile → research → verify → patents → regulatory comparison → gaps → escalation → report → audit);
 - a run of the evaluation suite itself.
 
+Frontend checks:
+
+```bash
+cd frontend
+npx tsc --noEmit        # type check
+npx next lint           # ESLint (eslint 8, eslint-config-next 15.5.27)
+npm run build           # production build, including middleware
+```
+
+## Evaluation
+
+The admin console runs an evaluation of 20 questions against the live pipeline (**Admin → Evaluation**). The latest full run (local Ollama `qwen2.5:7b`, `hashing-ngram` embeddings, top-k = 6) gave:
+
+| Metric | Value |
+|---|---|
+| Recall at k=6 | 0.978 |
+| Jurisdiction contamination | 0.000 (BM25 baseline: 0.222) |
+| Abstention accuracy | 1.000 (BM25 baseline: 0.850; LLM-only: 0.800) |
+| Unsupported claim rate | 0.033 |
+| Citation entailment | 0.794 |
+| Latency p50 / p95 | 54 s / 86 s on a local CPU |
+
+LLM-only answers (no retrieval) had 0 verifiable citations out of 20. Caveats: the question set (20) and the innovation-classification labels were written by the project team, the corpus is a 40-document seed, and these numbers are not a substitute for expert review. The full write-up is in `docs/reports/PS045_IP_SAKTI_Sahayak_Technical_Report_v2.0.pdf`, section 14.6.
+
 ## Known limitations
 
+- Classification covers Indian ASU and phytopharma categories, US botanical and dietary supplement, and Australian listed pathways. The **new drug** and **cosmetic** categories are not built yet.
+- The UI and answers support English and Hindi only. Bhashini integration and voice input or output are not built.
+- Classification labels used in the evaluation need review by a qualified regulatory expert.
 - The corpus is a curated seed of 40 documents, not a live feed. Statute summaries need independent verification, and the included patents are fictional. Use the admin console's Documents → Ingest New tab to add official documents.
 - The default `hashing` embeddings capture shared vocabulary rather than synonyms (terminology expansion covers much of this gap). Use `EMBEDDING_PROVIDER=openai` or `bge_m3` for genuine semantic embeddings. Changing the embedding provider requires reseeding (`--reset`) so stored vectors stay consistent.
 - Without an LLM key, answers are extractive quotes rather than synthesised text.
@@ -205,3 +239,16 @@ docker compose up -d postgres
 - Rate limiting is in-process; a multi-instance deployment would need Redis.
 - Background jobs run inline, since documents are small; longer ingestion jobs would need a dedicated worker.
 - Legacy artifacts from an earlier prototype (`backend/db/schema.sql`, `rag/store/*`, `evaluation/`, `scripts/`) are kept for reference only; the Alembic migrations and `app/models/orm.py` are the source of truth.
+
+## Future scope
+
+These items from the PS-045 problem statement are **not built** in this version. They are planned for later stages, after the citation-grounded core:
+
+- **ABS (Access and Benefit Sharing):** a dedicated helper under the Biological Diversity Act, 2002 (as amended in 2023) and the 2024 Rules. The Act is in the corpus today, but there is no ABS workflow yet.
+- **GI, trademark, design, copyright and plant-variety routing:** separate routing and answers for each IP type.
+- **New drug category:** classification and regulatory path under the CDSCO new drug pathway.
+- **Cosmetic category:** classification and requirements under the Cosmetics Act, 1940 and Rules, 1945.
+- **Bhashini integration:** multilingual delivery through national language infrastructure.
+- **Voice input and output.**
+- **DPDP Act alignment:** a documented mapping of data handling, consent, retention and audit to the Digital Personal Data Protection Act. This needs legal review before it is claimed.
+
