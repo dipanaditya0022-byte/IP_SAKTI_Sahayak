@@ -40,7 +40,7 @@
 <table class="meta">
   <tr><td><b>Version</b></td><td>2.0 (replaces v1.1 and v1.2)</td></tr>
   <tr><td><b>Repository</b></td><td>IP_SAKTI_Sahayak (main branch, uncommitted working tree at time of writing)</td></tr>
-  <tr><td><b>Status</b></td><td>MVP working on a local machine. Public demo link is a temporary tunnel, not production hosting.</td></tr>
+  <tr><td><b>Status</b></td><td>MVP deployed. Frontend: https://ipsakti-three.vercel.app (Vercel). Backend: Render. Database: Neon PostgreSQL with pgvector. Answer model: Google Gemini <code>gemini-3.5-flash-lite</code>.</td></tr>
   <tr><td><b>Notice</b></td><td>Smart India Hackathon prototype (PS-045). Not an official Government of India website.</td></tr>
 </table>
 
@@ -223,18 +223,21 @@ LLM provider (configurable: mock | ollama | openai | gemini | groq | grok | deep
 <h2 id="s13">13. Configuration and deployment</h2>
 <table>
   <tr><th style="width:26%">Setting</th><th>Default in code and what runs locally</th></tr>
-  <tr><td><code>LLM_PROVIDER</code></td><td>Code default <code>mock</code>. The local instance reports <code>ollama</code> (local model, no network cost). Providers without an API key fall back to mock with a warning.</td></tr>
+  <tr><td><code>LLM_PROVIDER</code></td><td>Code default <code>mock</code>. Local development uses <code>ollama</code>. Production uses <code>gemini</code> with <code>LLM_MODEL=gemini-3.5-flash-lite</code>. Providers without an API key fall back to mock with a warning. If the provider fails at runtime (for example a rate limit), the answer falls back to extractive mode and says so.</td></tr>
   <tr><td><code>EMBEDDING_PROVIDER</code></td><td><code>hashing</code></td></tr>
   <tr><td><code>JWT_SECRET</code></td><td>Development default, must be replaced for production</td></tr>
   <tr><td>Database</td><td>PostgreSQL 16 + pgvector (docker-compose, or a local instance)</td></tr>
   <tr><td>Frontend</td><td>Production build served on port 3000. <code>/api/*</code> rewrites to the backend on port 8000.</td></tr>
 </table>
 <h3>Hosting status</h3>
-<ul>
-  <li><b>Local:</b> backend (uvicorn, port 8000) and frontend (Next.js production server, port 3000) run on a development machine.</li>
-  <li><b>Public demo:</b> a Cloudflare quick tunnel exposes port 3000. The URL changes on every restart, and it stops when the machine sleeps or the tunnel process ends.</li>
-  <li><b>Planned:</b> frontend on Vercel, backend and database on a paid platform. Railway was paused because the trial expired. Production hosting has not been set up.</li>
-</ul>
+<table>
+  <tr><th style="width:22%">Part</th><th style="width:34%">Host</th><th>Notes</th></tr>
+  <tr><td>Frontend</td><td>Vercel (Hobby), <code>https://ipsakti-three.vercel.app</code></td><td>Root directory <code>frontend</code>. <code>BACKEND_URL</code> points <code>/api/*</code> rewrites at the backend, so cookies stay same-origin.</td></tr>
+  <tr><td>Backend</td><td>Render free web service, Docker (<code>docker/backend.Dockerfile</code>)</td><td><code>APP_ENV=production</code>, generated <code>JWT_SECRET</code> and <code>SESSION_SECRET</code>. Migrations and seed run on boot. Free services sleep when idle; an UptimeRobot monitor pings <code>/health</code>.</td></tr>
+  <tr><td>Database</td><td>Neon free PostgreSQL</td><td><code>vector</code> extension enabled. Direct (non-pooled) connection with <code>sslmode=require</code>.</td></tr>
+  <tr><td>Answer model</td><td>Google Gemini API, <code>gemini-3.5-flash-lite</code></td><td><code>gemini-2.5-flash</code> was tried first, but its free tier allows only 20 requests per day, which ran out during testing. <code>gemini-2.5-flash-lite</code> is not available to new API users.</td></tr>
+</table>
+<p>Local development still works as before (uvicorn on port 8000, Next.js on port 3000, optional Ollama).</p>
 
 <h2 id="s14">14. Testing and verification</h2>
 <h3>14.1 Backend automated tests</h3>
@@ -370,6 +373,25 @@ LLM provider (configurable: mock | ollama | openai | gemini | groq | grok | deep
   <li>The harness counts 20 of 20 questions as passed under its own rules. This is not an independent expert review.</li>
 </ul>
 
+<h3 id="s14_7">14.7 Production deployment checks (5 October 2026)</h3>
+<p>Run against the live deployment: frontend <code>https://ipsakti-three.vercel.app</code>, backend <code>https://ipsakti-backend-1dn4.onrender.com</code>.</p>
+<table>
+  <tr><th style="width:48%">Check</th><th style="width:14%">Result</th><th>Detail</th></tr>
+  <tr><td>Backend health</td><td class="pass">pass</td><td>status ok, version 0.2.0, environment production, database ok, pgvector enabled, 82 chunks indexed</td></tr>
+  <tr><td>LLM health</td><td class="pass">pass</td><td><code>gemini:gemini-3.5-flash-lite</code>, 862 ms</td></tr>
+  <tr><td>Session cookie flags</td><td class="pass">pass</td><td>HttpOnly, SameSite=lax, Secure</td></tr>
+  <tr><td>Security headers and CORS</td><td class="pass">pass</td><td>Content-Security-Policy, X-Frame-Options DENY, nosniff, Referrer-Policy; requests from an unknown origin are not allowed</td></tr>
+  <tr><td>All page routes in a browser (public, user, admin)</td><td class="pass">50 / 50</td><td>HTTP 200 and no JavaScript errors</td></tr>
+  <tr><td>API flows (innovation, escalation, report, access rules)</td><td class="pass">21 / 21</td><td>Same checks as section 14.5a</td></tr>
+  <tr><td>UI checks (demo fill, Hindi, A+, contrast, 390 px mobile, logout)</td><td class="pass">13 / 13</td><td>Same checks as section 14.5a</td></tr>
+  <tr><td>User and admin sign-in split</td><td class="pass">8 / 8</td><td>Same scenarios as section 14.4; user session gets 403 on the admin API</td></tr>
+  <tr><td>Chat in English (India, patents and traditional knowledge)</td><td class="pass">pass</td><td>LLM answer, 6 citations, Section 3(p) cited, about 6 s</td></tr>
+  <tr><td>Chat in Hindi (Ayurveda licence)</td><td class="pass">pass</td><td>LLM answer in Hindi, 6 citations, about 8 s</td></tr>
+  <tr><td>Restricted TKDL request</td><td class="pass">pass</td><td>Refused, abstained</td></tr>
+  <tr><td>Prompt-injection message</td><td class="pass">pass</td><td>Detected and flagged</td></tr>
+</table>
+<p>The page, API and UI checks were run while the LLM was still falling back to extractive mode; the LLM was checked separately after the Gemini model was fixed. The production evaluation suite (section 14.6) has not been re-run against Gemini.</p>
+
 <h2 id="s15">15. Known limitations</h2>
 <ul>
   <li>The corpus is a seed of 40 documents. Statute summaries need checking against official texts. Patents are fictional.</li>
@@ -377,7 +399,7 @@ LLM provider (configurable: mock | ollama | openai | gemini | groq | grok | deep
   <li>Classification labels were written by the project team and need expert review (section 14.6.4).</li>
   <li>Latency depends on the local model. The evaluation run shows p50 of 54 s; an earlier sample of three queries showed 34 s.</li>
   <li>Rate limiting runs in-process. Background jobs run inside the web worker. A larger deployment needs Redis and a separate worker.</li>
-  <li>The public demo link is temporary and changes on restart. Production hosting is not set up.</li>
+  <li>Hosting is on free tiers: the backend can be slow on the first request after sleeping, and the Gemini free tier has a daily request limit. When the limit is reached, answers fall back to extractive mode.</li>
   <li>No formal WCAG 2.0 AA audit has been done.</li>
   <li>Admin access is held by the project lead for now. Further admin accounts are not yet needed.</li>
 </ul>
@@ -385,8 +407,8 @@ LLM provider (configurable: mock | ollama | openai | gemini | groq | grok | deep
 <h2 id="s16">16. Next steps</h2>
 <ol>
   <li>Add further administrator accounts only when the team needs them, using the create-admin command.</li>
-  <li>Decide production hosting and a real contact address.</li>
-  <li>Connect a semantic embedding model and an LLM key, then re-run the evaluation suite.</li>
+  <li>Set a real contact address, and move to paid tiers if usage grows.</li>
+  <li>Connect a semantic embedding model, then re-run the evaluation suite against the production LLM.</li>
   <li>Verify the corpus against official texts and move reviewed documents out of SEED_SUMMARY.</li>
   <li>Run a formal accessibility audit.</li>
 </ol>

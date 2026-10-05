@@ -14,6 +14,17 @@ git clone https://github.com/dipanaditya0022-byte/IP_SAKTI_Sahayak.git
 
 ---
 
+## Live deployment
+
+| Part | Where |
+|---|---|
+| App (frontend) | https://ipsakti-three.vercel.app (Vercel) |
+| Backend API | https://ipsakti-backend-1dn4.onrender.com (Render, Docker) — API docs at `/docs` |
+| Database | Neon PostgreSQL with pgvector |
+| Answer model | Google Gemini, `gemini-3.5-flash-lite` |
+
+All of these run on free tiers. The backend can be slow on the first request after an idle period, and when the Gemini daily free limit is reached, answers fall back to extractive mode (still cited and verified).
+
 ## Contents
 
 - [Features](#features)

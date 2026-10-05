@@ -6,7 +6,9 @@
 
 ## Live Demo URL
 
-To be updated after deployment.
+https://ipsakti-three.vercel.app
+
+Backend API docs: https://ipsakti-backend-1dn4.onrender.com/docs
 
 ---
 
@@ -34,7 +36,7 @@ Admin login is at /admin/login — type this directly in the address bar. It is 
 
 ## Admin Login
 
-1. Open a new tab
+1. Open a private (incognito) window, or sign out of the user account first. If a user is already signed in in the same browser, /admin/login sends you back to the app.
 2. Go to: [live URL]/admin/login
 3. Enter admin@ipsakti.demo and Demo@12345
 4. You land on the Admin Console at /admin/dashboard
@@ -47,7 +49,7 @@ Admin session is completely separate from the user session. A normal user sessio
 
 Name: AyuCalm-X (DEMO)
 
-Pre-loaded so you can show the system immediately without typing anything. For a full live walkthrough see IP_SAKTI_Demo_Walkthrough_v1_1.pdf.
+Pre-loaded so you can show the system immediately without typing anything. For a full live walkthrough see IP_SAKTI_Demo_Walkthrough_v1.4.pdf.
 
 ---
 
@@ -69,7 +71,7 @@ Pre-loaded so you can show the system immediately without typing anything. For a
 
 1. Login as researcher@ipsakti.demo at /login
 2. Navigate to /admin/dashboard directly in the address bar
-3. Result: Access denied — server-side rejection, not UI hiding
+3. Result: you are sent back to /app, and the admin API returns 403 for the user session. The check is on the server, not just hidden in the menu.
 
 ---
 
@@ -88,7 +90,7 @@ Pre-loaded so you can show the system immediately without typing anything. For a
 
 ## Quick Reference
 
-User login:  /login         redirects to /dashboard
+User login:  /login         redirects to /app (dashboard)
 Admin login: /admin/login   redirects to /admin/dashboard
 
 User JWT cannot access /admin/* — returns 403
@@ -96,7 +98,6 @@ Admin JWT cannot access user workspace data
 
 ---
 
-After deployment update the Live Demo URL at the top of this file.
 
-For full step-by-step demo script see: IP_SAKTI_Demo_Walkthrough_v1_1.pdf
+For full step-by-step demo script see: IP_SAKTI_Demo_Walkthrough_v1.4.pdf
 For technical architecture see: Technical Report PS-045
