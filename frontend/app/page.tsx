@@ -19,8 +19,8 @@ const FONT_SCALES = ['100%', '112.5%', '125%'];
 const FONT_SCALE_KEY = 'ipsakti.fontScale';
 const CONTRAST_KEY = 'ipsakti.contrast';
 
-// Verified against the live code, not estimated: `grep -rc '@router\.\(get\|post\|put\|patch\|delete\)' backend/app/api/endpoints/*.py` = 108.
-const API_OPERATIONS = 108;
+// Count of operations in the backend OpenAPI schema.
+const API_OPERATIONS = 107;
 const RELEASE = 'v0.1.0'; // frontend/package.json "version"
 
 const SERVICES = [
@@ -49,8 +49,6 @@ const PERSONAS = [
   { icon: Landmark, title: 'Regulatory affairs teams', text: 'Compare provisional pathways across India, USA and Australia side by side, with the assumptions and open questions made explicit.', stat: 'India · USA · Australia' },
   { icon: Microscope, title: 'Academic & clinical researchers', text: 'Separate ingredient-level evidence from finished-formulation evidence, and see exactly which passage backs every claim.', stat: '40 curated sources' },
 ];
-// Explicit per-card spans for the "Built for" bento (not cycled like Features): keeps
-// Ayurveda/Patent as-is while swapping the Regulatory/Academic pair's sizes with each other.
 const PERSONA_SPANS = ['lg:col-span-8', 'lg:col-span-4', 'lg:col-span-4', 'lg:col-span-8'];
 
 const FAQ = [
@@ -62,8 +60,7 @@ const FAQ = [
   { q: 'Can I bring my own language model?', a: 'Yes. The backend works with a free local model (Ollama) out of the box, or can be pointed at Gemini, Groq, Grok, OpenAI or DeepSeek. Without a configured provider it still answers — by quoting retrieved passages directly instead of synthesising text.' },
 ];
 
-// Real external developments in the Indian AYUSH/Ayurveda IP & regulatory space (not project
-// updates) — each sourced, so it can be checked against the original, not taken on faith.
+// Each item links to its original source.
 const INDUSTRY_UPDATES = [
   {
     date: '2025-09-23',
@@ -82,10 +79,7 @@ const INDUSTRY_UPDATES = [
   },
 ];
 
-// Official public sites of the regulatory/IP bodies this project's coverage is scoped to.
-// Reference links only — no affiliation with or endorsement by these bodies is implied or claimed.
-// Icons are generic (not the bodies' own emblems/logos) per this project's own rule against
-// displaying government/agency logos, which would wrongly imply endorsement.
+// Generic icons, not official logos, so no endorsement is implied.
 const EXTERNAL_LINKS = [
   { name: 'IP India', url: 'https://ipindia.gov.in', icon: Scale },
   { name: 'National Biodiversity Authority', url: 'https://nbaindia.org', icon: Leaf },
@@ -96,13 +90,8 @@ const EXTERNAL_LINKS = [
   { name: 'WIPO', url: 'https://www.wipo.int', icon: Globe },
 ];
 
-// Bento rhythm reused across the services grid, two tiles at a time: a wide "feature" tile
-// (icon watermark, colspan 8) paired with a narrower accent tile (colspan 4) — repeated.
 const BENTO_SPANS = ['lg:col-span-8', 'lg:col-span-4'];
-// Explicit, non-repeating spans for the 8-tile Features bento — four differently-shaped rows
-// (5+7, 4+4+4, 6+6, full-width) instead of the same wide/narrow pair cycling four times.
 const FEATURE_SPANS = ['lg:col-span-5', 'lg:col-span-7', 'lg:col-span-4', 'lg:col-span-4', 'lg:col-span-4', 'lg:col-span-6', 'lg:col-span-6', 'lg:col-span-12'];
-// Only a few tiles go deep-navy so the grid reads as premium, not a patchwork of colors.
 const FEATURE_DARK = [1, 4, 7];
 const BENTO_ACCENTS = [
   'bg-surface-muted border-none',
@@ -239,9 +228,7 @@ function HeroCarousel({ t, lang, user, jurisdictions }: { t: ReturnType<typeof u
   const slide = slides[i];
   const Icon = slide.icon;
 
-  // Fixed px sizing throughout (not Tailwind's default rem-based classes): this card is a
-  // decorative visual anchor, not reading content, so it must stay visually constant when the
-  // accessibility text-size control (A-/A/A+) scales the root font-size — never "zoom".
+  // px, not rem: the hero should not grow with the A-/A/A+ text-size control.
   return (
     <div className="flex flex-1 flex-col overflow-hidden text-text-main shadow-soft-elevated"
       style={{ margin: '0 12px', borderRadius: '16px', background: 'linear-gradient(to bottom right, #FFFFFF, #F4F6FF, #E8ECFA)' }}>
@@ -340,8 +327,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen">
-      {/* This block (utility bar through hero) always fills at least one viewport height, so
-          the next section never peeks in above the fold on any screen size or text scale. */}
       <div className="flex flex-col" style={{ minHeight: 'calc(100dvh - 48px)' }}>
       <UtilityBar lang={lang} setLang={setLang} t={t} />
 

@@ -75,7 +75,6 @@ function domainToType(domain: string, docType: string) {
   return ({ REGULATORY: 'REGULATORY', IP: 'IP', TK_ABS: 'TK', SCIENTIFIC: 'SCIENTIFIC' } as Record<string, string>)[domain] || 'REGULATORY';
 }
 
-/** Citation drawer: source details, relevant passage, metadata, URL, why retrieved, tier. */
 export function SourceDrawer({ evidence, onClose }: { evidence: Evidence | null; onClose: () => void }) {
   const doc = useQuery({
     queryKey: ['document', evidence?.document_id],

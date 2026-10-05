@@ -6,8 +6,6 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // Self-hosted (via @fontsource, no Google Fonts CDN calls): Inter for UI body text,
-        // Sora for display headings, Noto Sans for multilingual (Hindi) text.
         sans: ['Inter', 'Noto Sans', 'system-ui', 'sans-serif'],
         heading: ['Sora', 'Noto Sans', 'Inter', 'sans-serif'],
         serif: ['Noto Sans', 'Inter', 'sans-serif'],

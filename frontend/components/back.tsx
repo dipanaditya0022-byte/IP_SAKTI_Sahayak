@@ -16,7 +16,6 @@ function readStack(): string[] {
   }
 }
 
-/** Keeps a stack of in-app paths so Back never leaves the site (e.g. when a page was opened from a shared link). */
 export function useTrackNavigation() {
   const path = usePathname();
   useEffect(() => {
@@ -29,8 +28,6 @@ export function useTrackNavigation() {
   }, [path]);
 }
 
-/** Parent route used when there is no in-app history to go back to. Covers both the user
- * app (/app/*) and the separate admin console (/admin/*) — the two never share a parent. */
 export function parentPath(path: string): string {
   const parts = path.split('/').filter(Boolean);
   if (parts[0] === 'admin') {
@@ -52,8 +49,7 @@ export function BackButton({ fallback, label = 'Back', className }: { fallback?:
       router.back();
       return;
     }
-    // No in-app history: go *up* to the parent and replace this entry, so repeated Back keeps climbing
-    // (Graph → Summary → All innovations → Dashboard) instead of bouncing back down.
+    // Replace rather than push, so pressing Back again keeps going up.
     try {
       sessionStorage.setItem(KEY, '[]');
     } catch {}
@@ -67,7 +63,6 @@ export function BackButton({ fallback, label = 'Back', className }: { fallback?:
   );
 }
 
-/** Explicit link to a known parent page (used on detail pages). */
 export function BackLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-main hover:underline">

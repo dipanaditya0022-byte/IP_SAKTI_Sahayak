@@ -27,8 +27,6 @@ const NAV: { href: string; label: string; icon: any }[] = [
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
-/** This layout renders every /admin/* route. /admin/login is intentionally exempt
- * from the session guard below (it has to be reachable while signed out). */
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminProvider>

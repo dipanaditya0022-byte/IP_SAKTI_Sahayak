@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import { Spinner } from '@/components/ui';
 import { useAdmin } from '@/lib/admin';
 
-/** /admin -> /admin/dashboard (or /admin/login, decided by the layout guard's session check). */
 export default function AdminIndex() {
   const router = useRouter();
   const { session, loading } = useAdmin();

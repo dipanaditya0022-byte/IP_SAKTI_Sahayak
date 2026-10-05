@@ -41,9 +41,7 @@ function Assistant() {
   const [convId, setConvId] = useState<string | null>(params.get('c'));
   const [innovationId, setInnovationId] = useState<string>(params.get('innovation') || '');
   const [mode, setMode] = useState(params.get('innovation') ? 'INNOVATION' : 'GENERAL');
-  // The ?jur= deep-link param is an optional one-time override; otherwise this follows the
-  // shared jurisdiction preference (set on the landing page / dashboard). ChatIn.jurisdiction
-  // is singular, so only the first selected jurisdiction is sent per conversation turn.
+  // The API takes one jurisdiction per message, so only the first selected one is sent.
   const urlJur = params.get('jur');
   useEffect(() => {
     if (urlJur) setJurisdictions([urlJur as any]);
@@ -78,7 +76,7 @@ function Assistant() {
   const steps = [t.loading.terminology, 'Hybrid retrieval (dense + BM25 + metadata + graph)…', 'Reranking & deduplicating…', 'Generating answer…', t.loading.verifying, 'Checking conflicts & freshness…'];
   useStepTicker(send.isPending, steps.length, setActive, 350);
 
-  // Scroll only the chat pane (scrollIntoView would also scroll the page and hide the app chrome).
+  // scrollIntoView would also scroll the page and hide the header.
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });

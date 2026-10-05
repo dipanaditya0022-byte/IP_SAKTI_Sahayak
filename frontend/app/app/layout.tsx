@@ -67,11 +67,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       { href: '/app/settings', label: t.nav.settings, icon: Settings },
     ] },
   ];
-  // Intentionally no "Admin" nav group here: the admin console (/admin/*) is a fully separate
-  // area with its own login, session and layout — see app/admin/layout.tsx. Mixing it into this
-  // sidebar would defeat that separation. ADMIN-role users get a single discovery link below,
-  // in the footer, which sends them to the admin console's own sign-in (an app session here is
-  // never sufficient by itself).
 
   const isActive = (href: string) => (href === '/app' ? path === '/app' : path === href || (path.startsWith(href + '/') && href !== '/app/innovations') || (href === '/app/innovations' && path.startsWith('/app/innovations/') && !path.startsWith('/app/innovations/new')));
   const status = health.data?.status;

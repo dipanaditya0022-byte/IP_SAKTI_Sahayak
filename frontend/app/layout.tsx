@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-// Self-hosted font files (no build-time or runtime calls to Google Fonts' CDN):
-// Inter for UI/Latin text, Noto Sans (Devanagari + Latin) for Hindi — bundled via npm.
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';

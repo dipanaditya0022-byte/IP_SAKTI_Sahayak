@@ -151,7 +151,6 @@ export function ProgressSteps({ steps, active }: { steps: string[]; active: numb
   );
 }
 
-/** Cycles through step labels while a long request runs (server work is not streamed). */
 export function useStepTicker(running: boolean, n: number, setActive: (i: number) => void, ms = 700) {
   useEffect(() => {
     if (!running) return;
@@ -283,8 +282,6 @@ export function Notice({ tone = 'warn', children, title }: { tone?: 'warn' | 'in
   );
 }
 
-/** Click-to-open panel anchored under `trigger`; closes on outside click, Escape, or picking
- * an item inside it (clicks inside the panel bubble up and close it). */
 export function Popover({ trigger, children, align = 'right', panelClassName }: { trigger: ReactNode; children: ReactNode; align?: 'left' | 'right'; panelClassName?: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -323,9 +320,6 @@ export function Popover({ trigger, children, align = 'right', panelClassName }: 
 
 export type MenuItem = { label: string; href?: string; onClick?: () => void; icon?: any; danger?: boolean };
 
-/** Top-right account control: avatar + name, opening a dropdown with a subtitle (role/email)
- * and a list of actions (Settings, Sign out, …). Always driven by real session data passed
- * in by the caller — never invents a name/role of its own. */
 export function ProfileMenu({ name, subtitle, items, accent = 'app' }: { name: string; subtitle?: string; items: MenuItem[]; accent?: 'app' | 'admin' }) {
   const initial = (name || '?').trim().charAt(0).toUpperCase();
   return (

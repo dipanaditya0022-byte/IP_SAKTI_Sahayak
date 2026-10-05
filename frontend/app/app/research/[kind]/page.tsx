@@ -21,8 +21,6 @@ export default function ResearchPage() {
   const cfg = KINDS[kind];
   const { t, jurisdictions } = useApp();
   const [query, setQuery] = useState(cfg?.example || '');
-  // Seeded from the shared jurisdiction preference where it applies; this remains its own
-  // independent selector since it's a one-off search form, not a persistent app-wide value.
   const [jurs, setJurs] = useState<string[]>(kind === 'regulatory' ? (jurisdictions.length ? jurisdictions : ['IN', 'US', 'AU']) : []);
   const [maxTier, setMaxTier] = useState('');
   const [includeSuperseded, setIncludeSuperseded] = useState(false);

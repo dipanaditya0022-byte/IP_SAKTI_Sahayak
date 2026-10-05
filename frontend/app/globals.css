@@ -64,7 +64,6 @@
   }
 }
 
-/* High-contrast accessibility mode, toggled via the utility bar. */
 html[data-contrast='high'] {
   --tw-text-opacity: 1;
 }

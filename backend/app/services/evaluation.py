@@ -1,7 +1,4 @@
-"""RAG evaluation: runs seeded questions through the live pipeline and computes metrics.
-
-Metrics are computed from actual outputs — nothing is hardcoded.
-"""
+"""RAG evaluation: runs seeded questions through the live pipeline and computes metrics."""
 import math
 import time
 

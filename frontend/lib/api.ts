@@ -1,7 +1,3 @@
-/**
- * API client. The browser only talks to this origin; Next.js rewrites /api/* to FastAPI.
- * Auth is an httpOnly cookie; writes carry X-Requested-With (CSRF defence).
- */
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 const WS_KEY = 'ipsakti.workspace';
 const JUR_KEY = 'ipsakti.jurisdictions';
@@ -40,7 +36,7 @@ export function getJurisdictions(): string[] {
   try {
     const raw = window.localStorage.getItem(JUR_KEY);
     if (raw) return JSON.parse(raw);
-    // One-time migration from the landing page's old single-value key.
+    // Migrate the old single-value key.
     const legacy = window.localStorage.getItem(LEGACY_JUR_KEY);
     return legacy ? [legacy] : [];
   } catch {
@@ -87,8 +83,7 @@ export async function api<T = any>(path: string, opts: Opts = {}): Promise<T> {
   }
   if (!res.ok || body?.success === false) {
     const e = body?.error || {};
-    // A 401 from an /admin/* call (or while on an /admin page) means the *admin* session is
-    // missing/expired — send back to the separate admin login, never the app's user login.
+    // Admin pages have their own login, separate from the user login.
     if (res.status === 401 && typeof window !== 'undefined' && !path.startsWith('/auth/')) {
       const inAdminArea = path.startsWith('/admin/') || window.location.pathname.startsWith('/admin');
       const loginPath = inAdminArea ? '/admin/login' : '/login';

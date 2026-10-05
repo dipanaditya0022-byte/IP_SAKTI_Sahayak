@@ -26,10 +26,7 @@ export default function PatentsTab() {
   if (q.isError) return <ErrorState error={q.error} onRetry={() => q.refetch()} />;
   const d = q.data;
   const features = Array.from(new Set(d.matrix.map((m: any) => m.feature))) as string[];
-  // Matches are already scoped server-side to the innovation's target jurisdictions
-  // (Innovation.target_markets), so this is a secondary filter over an already-scoped set —
-  // derived from what's actually present rather than a hardcoded list, so it never offers a
-  // jurisdiction (e.g. EP) that can't appear in this innovation's own matches.
+  // Built from the matches themselves, so it never lists a jurisdiction with no results.
   const jurisdictionsPresent = Array.from(new Set(d.matrix.map((m: any) => m.jurisdiction))) as string[];
   const rows = d.matrix.filter((m: any) => (!feature || m.feature === feature) && (!jur || m.jurisdiction === jur) && m.similarity >= minSim && (!after || (m.date || '') >= after));
 

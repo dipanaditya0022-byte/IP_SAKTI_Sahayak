@@ -2,7 +2,6 @@
 
 import { Fragment, ReactNode } from 'react';
 
-/** Minimal, safe Markdown renderer (no raw HTML) for generated reports. */
 function inline(text: string): ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_|`[^`]+`)/g);
   return parts.map((p, i) => {

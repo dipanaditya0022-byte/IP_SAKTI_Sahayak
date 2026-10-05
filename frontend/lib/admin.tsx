@@ -1,11 +1,5 @@
 'use client';
 
-/**
- * Admin console session context — deliberately separate from lib/providers.tsx's
- * useApp()/AppCtx (the user/app-side session). The two never share state: this hook
- * only ever reads /api/auth/admin/session, which is backed by the admin-scoped
- * cookie/token, not the app's user session.
- */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useMemo } from 'react';
 import { get } from './api';

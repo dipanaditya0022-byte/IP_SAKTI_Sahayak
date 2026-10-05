@@ -1,9 +1,4 @@
-"""Workspace dashboard for the application (user side).
-
-Not to be confused with the admin console's system-wide dashboard
-(app/api/endpoints/admin_console.py, mounted at /api/admin/overview) — this one
-is scoped to the caller's own workspace, like every other endpoint in the app.
-"""
+"""Workspace dashboard for the user app."""
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session

@@ -1,7 +1,4 @@
-"""Coverage matrix, provision map, corpus lifecycle, retention and runtime metrics.
-
-Everything here is computed from the database — no placeholder numbers.
-"""
+"""Coverage matrix, provision map, corpus lifecycle, retention and runtime metrics."""
 from datetime import datetime, timedelta, timezone
 from statistics import median
 

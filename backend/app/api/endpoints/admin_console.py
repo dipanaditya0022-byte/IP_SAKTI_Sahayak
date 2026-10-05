@@ -391,9 +391,7 @@ def citation_monitoring(days: int = 30, db: Session = Depends(get_db)):
     conf = _confidential_workspaces(db)
     by_status = {k.value: v for k, v in db.execute(select(Claim.support_status, func.count()).where(Claim.created_at >= since).group_by(Claim.support_status)).all()}
     by_type = dict(db.execute(select(Claim.claim_type, func.count()).where(Claim.created_at >= since).group_by(Claim.claim_type)).all())
-    # Claim itself carries no jurisdiction column — it's the chat turn's jurisdiction_label,
-    # stored on the owning Message.payload, same field rag_monitoring() reads. Joined and
-    # tallied in Python (not a SQL group_by) since the value lives inside a JSON blob.
+    # Claims have no jurisdiction column; it lives in the message payload JSON.
     by_jurisdiction: dict[str, int] = {}
     for (payload,) in db.execute(select(Message.payload).join(Claim, Claim.message_id == Message.id).where(Claim.created_at >= since)).all():
         jur = ((payload or {}).get("analysis") or {}).get("jurisdiction_label") or "?"
