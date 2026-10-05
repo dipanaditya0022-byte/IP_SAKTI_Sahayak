@@ -64,3 +64,6 @@ Thumbs.db
 
 # Runtime logs
 logs/
+
+# Render production env (contains generated secrets)
+render.env
