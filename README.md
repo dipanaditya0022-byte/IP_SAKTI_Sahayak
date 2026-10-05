@@ -100,7 +100,7 @@ frontend/
 tests/                          pytest suite incl. the end-to-end integration flow
 docker/                         backend & frontend Dockerfiles
 docker-compose.yml              Postgres (and optional full stack) at the repo root
-docs/                           technical report, MVP overview, walkthrough (docs/reports), GAP_CLOSURE.md
+docs/                           technical report and MVP overview (docs/reports), GAP_CLOSURE.md
 ```
 
 ## One-command start (demo machine)

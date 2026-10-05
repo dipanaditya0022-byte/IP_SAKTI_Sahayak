@@ -49,7 +49,7 @@ Admin session is completely separate from the user session. A normal user sessio
 
 Name: AyuCalm-X (DEMO)
 
-Pre-loaded so you can show the system immediately without typing anything. For a full live walkthrough see IP_SAKTI_Demo_Walkthrough_v1.4.pdf.
+Pre-loaded so you can show the system immediately without typing anything.
 
 ---
 
@@ -99,5 +99,5 @@ Admin JWT cannot access user workspace data
 ---
 
 
-For full step-by-step demo script see: IP_SAKTI_Demo_Walkthrough_v1.4.pdf
+For what was built and why see: docs/reports/MVP_Overview_and_Rationale.pdf
 For technical architecture see: Technical Report PS-045
